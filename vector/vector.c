@@ -9,8 +9,21 @@
 // #define VECTOR_C
 #include "vector.h"
 
+#ifdef _WIN32
+    #ifdef BUILDING_DLL
+        #define VAPI __declspec(dllexport)
+    #elif define(USING_DLL)
+        #define VAPI __declspec(dllimport)
+    #else
+        #define VAPI
+    #endif
+#else
+  #define VAPI   /* nothing */
+#endif
 
-Vector Vector_create(int element_size){
+
+
+VAPI Vector Vector_create(int element_size){
     Vector vector;
     vector.size = 0;
     vector.capacity = 10;
@@ -20,7 +33,7 @@ Vector Vector_create(int element_size){
     return vector;
 }
 
-Vector Vector_createCapacity(size_t capacity, int element_size){
+VAPI Vector Vector_createCapacity(size_t capacity, int element_size){
     Vector vector;
     vector.size = 0;
     vector.capacity = capacity;
@@ -29,7 +42,7 @@ Vector Vector_createCapacity(size_t capacity, int element_size){
     return vector;
 }
 
-Vector Vector_createSize(size_t size, int element_size){
+VAPI Vector Vector_createSize(size_t size, int element_size){
     Vector vector;
     vector.size = size;
     vector.capacity = size;
@@ -39,7 +52,7 @@ Vector Vector_createSize(size_t size, int element_size){
     return vector;
 }
 
-Vector Vector_createSizeSet(size_t size, void *value, int element_size){
+VAPI Vector Vector_createSizeSet(size_t size, void *value, int element_size){
     Vector vector;
     vector.size = size;
     vector.capacity = size;
@@ -51,7 +64,7 @@ Vector Vector_createSizeSet(size_t size, void *value, int element_size){
     return vector;
 }
 
-Vector Vector_createCapacitySizeSet(size_t capacity, size_t size, void *value, int element_size){    Vector vector;
+VAPI Vector Vector_createCapacitySizeSet(size_t capacity, size_t size, void *value, int element_size){    Vector vector;
     vector.size = size;
     vector.capacity = capacity >= size ? capacity : size;
     vector.element_size = element_size;
@@ -62,7 +75,7 @@ Vector Vector_createCapacitySizeSet(size_t capacity, size_t size, void *value, i
     return vector;
 }
 
-void Vector_destroy(Vector *vector){
+VAPI void Vector_destroy(Vector *vector){
     free(vector->data);
     vector->data = NULL;
     vector->size = 0;
@@ -72,7 +85,7 @@ void Vector_destroy(Vector *vector){
 
 
 
-void Vector_push(Vector *vector, const void *value){
+VAPI void Vector_push(Vector *vector, const void *value){
     if(!vector || !vector->data) return;
 
     if(vector->size >= vector->capacity){
@@ -84,7 +97,7 @@ void Vector_push(Vector *vector, const void *value){
     return;
 }
 
-void Vector_pop(Vector *vector, void *ret){
+VAPI void Vector_pop(Vector *vector, void *ret){
     if(!vector || !vector->data) return;
 
     if(vector->size == 0){
@@ -98,7 +111,7 @@ void Vector_pop(Vector *vector, void *ret){
     return;
 }
 
-void Vector_insert(Vector *vector, const size_t index, const void *value){
+VAPI void Vector_insert(Vector *vector, const size_t index, const void *value){
     if(!vector || !vector->data) return;
     
     if(index > vector->size){
@@ -113,7 +126,7 @@ void Vector_insert(Vector *vector, const size_t index, const void *value){
     return;
 }
 
-void Vector_set(Vector *vector, const size_t index, const void *value){
+VAPI void Vector_set(Vector *vector, const size_t index, const void *value){
     if(!vector || !vector->data) return;
     
     if(index >= vector->size || index < -1){
@@ -123,7 +136,7 @@ void Vector_set(Vector *vector, const size_t index, const void *value){
     return;
 }
 
-void Vector_get(Vector *vector, const size_t index, void *ret){
+VAPI void Vector_get(Vector *vector, const size_t index, void *ret){
     if(!vector || !vector->data) return;
     
     if(index >= vector->size){
@@ -142,14 +155,14 @@ void *Vector_getPointer(Vector *vector, const size_t index){
     return (char*)vector->data + (index * vector->element_size);
 }
 
-void Vector_clear(Vector *vector){
+VAPI void Vector_clear(Vector *vector){
     if(!vector || !vector->data) return;
     
     vector->size = 0;
     return;
 }
 
-void Vector_resize(Vector *vector, size_t capacity){
+VAPI void Vector_resize(Vector *vector, size_t capacity){
     if(!vector || capacity < 0) return;
     
     if(vector->capacity == capacity) return;
@@ -160,7 +173,7 @@ void Vector_resize(Vector *vector, size_t capacity){
 }
 
 
-Vector Vector_copyReturn(Vector *src){
+VAPI Vector Vector_copyReturn(Vector *src){
     if(!src) return (Vector){0, 0, 0, NULL};
 
     Vector vector;
@@ -172,7 +185,7 @@ Vector Vector_copyReturn(Vector *src){
     return vector;
 }
 
-void Vector_copy(Vector *dest, Vector *src){
+VAPI void Vector_copy(Vector *dest, Vector *src){
     if(!dest || !src) return;
 
     if(dest->data != NULL){
@@ -188,24 +201,24 @@ void Vector_copy(Vector *dest, Vector *src){
 
 
 
-size_t Vector_getCapacity(Vector *vector){
+VAPI size_t Vector_getCapacity(Vector *vector){
     if(vector) return vector->capacity;
     return -1;
 }
 
-size_t Vector_getSize(Vector *vector){
+VAPI size_t Vector_getSize(Vector *vector){
     if(vector) return vector->size;
     return -1;
 }
 
-int Vector_getSizeOfElements(Vector *vector){
+VAPI int Vector_getSizeOfElements(Vector *vector){
     if(vector) return vector->element_size;
     return -1;
 }
 
 
 
-void Vector_shiftRightFrom(Vector *vector, const size_t index){
+VAPI void Vector_shiftRightFrom(Vector *vector, const size_t index){
     if(!vector) return;
 
     if(index >= vector->size || index < 0){
@@ -223,7 +236,7 @@ void Vector_shiftRightFrom(Vector *vector, const size_t index){
     return;
 }
 
-void Vector_shiftLeftFrom(Vector *vector, const size_t index){
+VAPI void Vector_shiftLeftFrom(Vector *vector, const size_t index){
     if(!vector) return;
     
     if(index >= vector->size || index < 0){
@@ -237,7 +250,7 @@ void Vector_shiftLeftFrom(Vector *vector, const size_t index){
     return;
 }
 
-void Vector_shiftRightFromBy(Vector *vector, const size_t index, size_t amount){
+VAPI void Vector_shiftRightFromBy(Vector *vector, const size_t index, size_t amount){
     if(!vector || amount <= 0) return;
 
     if(index >= vector->size || index < 0){
@@ -255,7 +268,7 @@ void Vector_shiftRightFromBy(Vector *vector, const size_t index, size_t amount){
     return;
 }
 
-void Vector_shiftLeftFromBy(Vector *vector, const size_t index, size_t amount){
+VAPI void Vector_shiftLeftFromBy(Vector *vector, const size_t index, size_t amount){
     if(!vector || amount <= 0) return;
     
     if(index >= vector->size || index < 0){
@@ -272,7 +285,7 @@ void Vector_shiftLeftFromBy(Vector *vector, const size_t index, size_t amount){
 
 
 
-void Vector_sort(const Vector *vector, const int (*Vector_compare)(const void *a, const void *b)){
+VAPI void Vector_sort(const Vector *vector, const int (*Vector_compare)(const void *a, const void *b)){
     qsort(vector->data, vector->size, vector->element_size, Vector_compare);
     return;
 }
@@ -395,7 +408,7 @@ void CVector_destroy(CVector *vector){
     return;
 }
 
-void Vector_destroy_wrapper(void *element){
+VAPI void Vector_destroy_wrapper(void *element){
     Vector_destroy((Vector*)element);
     return;
 }
@@ -564,7 +577,7 @@ void CVector_copy(CVector *dest, CVector *src){
     return;
 }
 
-void Vector_copy_wrapper(void *src, const void *dst){
+VAPI void Vector_copy_wrapper(void *src, const void *dst){
     Vector_copy((Vector*)dst, (Vector*)src);
 }
 
