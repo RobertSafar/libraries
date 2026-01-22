@@ -128,7 +128,7 @@ MSAPI void String_insert(String *string, const size_t index, const char *text){
     if(!string) return;
     else if(index > string->size) return;
     else if(index == string->size){
-        MSAPI String_append(string, text);
+        String_append(string, text);
         return;
     }
 

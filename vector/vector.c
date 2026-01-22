@@ -12,7 +12,7 @@
 #ifdef _WIN32
     #ifdef BUILDING_DLL
         #define VAPI __declspec(dllexport)
-    #elif define(USING_DLL)
+    #elif defined(USING_DLL)
         #define VAPI __declspec(dllimport)
     #else
         #define VAPI
@@ -147,7 +147,7 @@ VAPI void Vector_get(Vector *vector, const size_t index, void *ret){
 }
 
 void *Vector_getPointer(Vector *vector, const size_t index){
-    if(!vector || !vector->data) return;
+    if(!vector || !vector->data) return NULL;
     
     if(index >= vector->size){
         return NULL;
@@ -452,10 +452,10 @@ void CVector_insert(CVector *vector, const size_t index, const void *value){
         return;
     }
     else if(index == vector->size){
-        Vector_push(vector, value);
+        CVector_push(vector, value);
         return;
     }
-    Vector_shiftRightFrom(vector, index);
+    CVector_shiftRightFrom(vector, index);
 
     if(vector->copy) vector->copy((char*)vector->data + (index * vector->element_size), value);
     else memcpy((char*)vector->data + (index * vector->element_size), value, vector->element_size);
@@ -487,7 +487,7 @@ void CVector_get(CVector *vector, const size_t index, void *ret){
 }
 
 void *CVector_getPointer(CVector *vector, const size_t index){
-    if(!vector || !vector->data) return;
+    if(!vector || !vector->data) return NULL;
 
     if(index >= vector->size){
         return NULL;
