@@ -76,6 +76,8 @@ VAPI Vector Vector_createCapacitySizeSet(size_t capacity, size_t size, void *val
 }
 
 VAPI void Vector_destroy(Vector *vector){
+    if(!vector || !vector->data) return;
+
     free(vector->data);
     vector->data = NULL;
     vector->size = 0;
@@ -166,7 +168,7 @@ VAPI void Vector_resize(Vector *vector, size_t capacity){
     if(!vector || capacity < 0) return;
     
     if(vector->capacity == capacity) return;
-    else if(vector->size < capacity) vector->size = capacity;
+    else if(vector->size >= capacity) vector->size = capacity;
     vector->capacity = capacity;
     vector->data = realloc(vector->data, capacity * vector->element_size);
     return;
@@ -188,9 +190,9 @@ VAPI Vector Vector_copyReturn(Vector *src){
 VAPI void Vector_copy(Vector *dest, Vector *src){
     if(!dest || !src) return;
 
-    if(dest->data != NULL){
-        free(dest->data);
-    }
+    // if(dest->data != NULL){
+    //     free(dest->data);
+    // }
     dest->size = src->size;
     dest->capacity = src->capacity;
     dest->element_size = src->element_size;
@@ -286,6 +288,8 @@ VAPI void Vector_shiftLeftFromBy(Vector *vector, const size_t index, size_t amou
 
 
 VAPI void Vector_sort(const Vector *vector, const int (*Vector_compare)(const void *a, const void *b)){
+    if(!vector) return;
+
     qsort(vector->data, vector->size, vector->element_size, Vector_compare);
     return;
 }
@@ -296,7 +300,7 @@ VAPI void Vector_sort(const Vector *vector, const int (*Vector_compare)(const vo
 
 
 
-CVector CVector_create(int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI CVector CVector_create(int element_size, CVdestroy_func destroy, CVcopy_func copy){
     CVector vector;
     vector.size = 0;
     vector.capacity = 10;
@@ -309,7 +313,7 @@ CVector CVector_create(int element_size, CVdestroy_func destroy, CVcopy_func cop
     return vector;
 }
 
-CVector CVector_createDefault1D(int element_size){
+VAPI CVector CVector_createDefault1D(int element_size){
     CVector vector;
     vector.size = 0;
     vector.capacity = 10;
@@ -322,7 +326,7 @@ CVector CVector_createDefault1D(int element_size){
     return vector;
 }
 
-CVector CVector_createDefault2D(int element_size){
+VAPI CVector CVector_createDefault2D(int element_size){
     CVector vector;
     vector.size = 0;
     vector.capacity = 10;
@@ -335,7 +339,7 @@ CVector CVector_createDefault2D(int element_size){
     return vector;
 }
 
-CVector CVector_createCapacity(size_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI CVector CVector_createCapacity(size_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     CVector vector;
     vector.size = 0;
     vector.capacity = capacity;
@@ -348,7 +352,7 @@ CVector CVector_createCapacity(size_t capacity, int element_size, CVdestroy_func
     return vector;
 }
 
-CVector CVector_createSize(size_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI CVector CVector_createSize(size_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     CVector vector;
     vector.size = size;
     vector.capacity = size;
@@ -361,7 +365,7 @@ CVector CVector_createSize(size_t size, int element_size, CVdestroy_func destroy
     return vector;
 }
 
-CVector CVector_createSizeSet(size_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI CVector CVector_createSizeSet(size_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     CVector vector;
     vector.size = size;
     vector.capacity = size;
@@ -376,7 +380,7 @@ CVector CVector_createSizeSet(size_t size, void *value, int element_size, CVdest
     return vector;
 }
 
-CVector CVector_createCapacitySizeSet(size_t capacity, size_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI CVector CVector_createCapacitySizeSet(size_t capacity, size_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     CVector vector;
     vector.size = size;
     vector.capacity = capacity >= size ? capacity : size;
@@ -391,16 +395,16 @@ CVector CVector_createCapacitySizeSet(size_t capacity, size_t size, void *value,
     return vector;
 }
 
-void CVector_destroy(CVector *vector){
-    if(!vector) return;
+VAPI void CVector_destroy(CVector *vector){
+    if(!vector || !vector->data) return;
     if(vector->destroy == NULL){
-        free(vector->data);
-        return;
+        goto free_top;
     }
 
     for(size_t i = 0; i < vector->size; i++){
         vector->destroy((char*)vector->data + vector->element_size * i);
     }
+    free_top:
     free(vector->data);
     vector->data = NULL;
     vector->size = 0;
@@ -415,12 +419,14 @@ VAPI void Vector_destroy_wrapper(void *element){
 
 
 
-void CVector_push(CVector *vector, const void *value){
-    if(!vector || !vector->data) return;
+VAPI void CVector_push(CVector *vector, const void *value){
+    if(!vector || !vector->data || !value) return;
 
     if(vector->size >= vector->capacity){
+        size_t old_capacity = vector->capacity;
         vector->capacity *= 2;
         vector->data = realloc(vector->data, (vector->capacity * vector->element_size));
+        memset((char*)vector->data + old_capacity * vector->element_size, 0, old_capacity * vector->element_size);
     }
     if(vector->copy) vector->copy((char*)vector->data + (vector->size * vector->element_size), value);
     else memcpy((char*)vector->data + (vector->size * vector->element_size), value, vector->element_size);
@@ -428,7 +434,7 @@ void CVector_push(CVector *vector, const void *value){
     return;
 }
 
-void CVector_pop(CVector *vector, void *ret){
+VAPI void CVector_pop(CVector *vector, void *ret){
     if(!vector || !vector->data) return;
 
     if(vector->size == 0){
@@ -437,15 +443,16 @@ void CVector_pop(CVector *vector, void *ret){
     vector->size--;
     if(ret == NULL) {
         //destroy the element that is getting popped but not assigned to a variable
-        if(vector->destroy) vector->destroy((char*)vector->data + vector->size);
+        if(vector->destroy) vector->destroy((char*)vector->data + vector->size * vector->element_size);
         return;
     }
     memcpy(ret, (char*)vector->data + (vector->size * vector->element_size), vector->element_size);
+    memset((char*)vector->data + vector->size * vector->element_size, 0, vector->element_size);
     return;
 }
 
 
-void CVector_insert(CVector *vector, const size_t index, const void *value){
+VAPI void CVector_insert(CVector *vector, const size_t index, const void *value){
     if(!vector || !vector->data) return;
 
     if(index > vector->size){
@@ -463,7 +470,7 @@ void CVector_insert(CVector *vector, const size_t index, const void *value){
     return;
 }
 
-void CVector_set(CVector *vector, const size_t index, const void *value){
+VAPI void CVector_set(CVector *vector, const size_t index, const void *value){
     if(!vector || !vector->data) return;
 
     if(index >= vector->size || index < -1){
@@ -475,7 +482,18 @@ void CVector_set(CVector *vector, const size_t index, const void *value){
     return;
 }
 
-void CVector_get(CVector *vector, const size_t index, void *ret){
+VAPI void CVector_get(CVector *vector, const size_t index, void *ret){
+    if(!vector || !vector->data) return;
+
+    if(index >= vector->size){
+        return;
+    }
+    if(vector->copy) vector->copy(ret, (char*)vector->data + (index * vector->element_size));
+    else memcpy(ret, (char*)vector->data + (index * vector->element_size), vector->element_size);
+    return;
+}
+
+VAPI void CVector_getReference(CVector *vector, const size_t index, void *ret){
     if(!vector || !vector->data) return;
 
     if(index >= vector->size){
@@ -495,7 +513,7 @@ void *CVector_getPointer(CVector *vector, const size_t index){
     return (char*)vector->data + (index * vector->element_size);
 }
 
-void CVector_clear(CVector *vector){
+VAPI void CVector_clear(CVector *vector){
     if(!vector || !vector->data) return;
     
     if(!vector->destroy){
@@ -510,11 +528,11 @@ void CVector_clear(CVector *vector){
     return;
 }
 
-void CVector_resize(CVector *vector, size_t capacity){
+VAPI void CVector_resize(CVector *vector, size_t capacity){
     if(!vector || capacity < 0) return;
     
     if(vector->capacity == capacity) return;
-    else if(vector->size < capacity){
+    else if(vector->size >= capacity){
         if(vector->destroy){
             for(size_t i = capacity; i < vector->size; i++){
                 vector->destroy((char*)vector->data + vector->element_size * i);
@@ -529,7 +547,7 @@ void CVector_resize(CVector *vector, size_t capacity){
 
 
 
-CVector CVector_copyReturn(CVector *src){
+VAPI CVector CVector_copyReturn(CVector *src){
     if(!src) return (CVector){0, 0, 0, NULL, NULL, NULL};
 
     CVector vector;
@@ -552,12 +570,12 @@ CVector CVector_copyReturn(CVector *src){
 }
 
 
-void CVector_copy(CVector *dest, CVector *src){
+VAPI void CVector_copy(CVector *dest, CVector *src){
     if(!dest || !src) return;
 
-    if(dest->data != NULL){
-        free(dest->data);
-    }
+    // if(dest->data != NULL){
+    //     CVector_destroy(dest);
+    // }
     dest->size = src->size;
     dest->capacity = src->capacity;
     dest->element_size = src->element_size;
@@ -577,29 +595,29 @@ void CVector_copy(CVector *dest, CVector *src){
     return;
 }
 
-VAPI void Vector_copy_wrapper(void *src, const void *dst){
+VAPI void Vector_copy_wrapper(void *dst, const void *src){
     Vector_copy((Vector*)dst, (Vector*)src);
 }
 
 
 
-size_t CVector_getCapacity(CVector *vector){
+VAPI size_t CVector_getCapacity(CVector *vector){
     if(vector) return vector->capacity;
     return -1;
 }
 
-size_t CVector_getSize(CVector *vector){
+VAPI size_t CVector_getSize(CVector *vector){
     if(vector) return vector->size;
     return -1;
 }
 
-int CVector_getSizeOfElements(CVector *vector){
+VAPI int CVector_getSizeOfElements(CVector *vector){
     if(vector) return vector->element_size;
     return -1;
 }
 
 
-void CVector_shiftRightFrom(CVector *vector, const size_t index){
+VAPI void CVector_shiftRightFrom(CVector *vector, const size_t index){
     if(!vector) return;
 
     if(index >= vector->size || index < 0){
@@ -618,7 +636,7 @@ void CVector_shiftRightFrom(CVector *vector, const size_t index){
     return;
 }
 
-void CVector_shiftLeftFrom(CVector *vector, const size_t index){
+VAPI void CVector_shiftLeftFrom(CVector *vector, const size_t index){
     if(!vector) return;
     
     if(index >= vector->size || index < 0){
@@ -634,7 +652,7 @@ void CVector_shiftLeftFrom(CVector *vector, const size_t index){
     return;
 }
 
-void CVector_shiftRightFromBy(CVector *vector, const size_t index, size_t amount){
+VAPI void CVector_shiftRightFromBy(CVector *vector, const size_t index, size_t amount){
     if(!vector || amount <= 0) return;
 
     if(index >= vector->size || index < 0){
@@ -653,7 +671,7 @@ void CVector_shiftRightFromBy(CVector *vector, const size_t index, size_t amount
     return;
 }
 
-void CVector_shiftLeftFromBy(CVector *vector, const size_t index, size_t amount){
+VAPI void CVector_shiftLeftFromBy(CVector *vector, const size_t index, size_t amount){
     if(!vector || amount <= 0) return;
     
     if(index >= vector->size || index < 0){
@@ -679,7 +697,9 @@ void CVector_shiftLeftFromBy(CVector *vector, const size_t index, size_t amount)
 
 
 
-void CVector_sort(const CVector *vector, const int (*CVector_compare)(const void *a, const void *b)){
+VAPI void CVector_sort(const CVector *vector, const int (*CVector_compare)(const void *a, const void *b)){
+    if(!vector) return;
+
     qsort(vector->data, vector->size, vector->element_size, CVector_compare);
     return;
 }

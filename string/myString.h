@@ -51,12 +51,13 @@ void String_pop(String *string, char *ret);
 void String_insert(String *string, const size_t index, const char *text);
 //rewrite n characters of the string with the provided text where n is the length of the text
 void String_set(String *string, const size_t index, const char *text);
-/*
 //copy the element at an index to the "ret" variable
 void String_get(String *string, const size_t index, char *ret);
-*/
 //set size of the String to 0
 void String_clear(String *string);
+//change the capacity of a string, if current size is greater than te new capacity
+//all of the trailing elements will be lost and string will be full after the resize
+void String_resize(String *string, size_t capacity);
 
 
 //creates a copy of an existing String. Returns the copy

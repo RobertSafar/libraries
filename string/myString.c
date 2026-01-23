@@ -169,13 +169,38 @@ MSAPI void String_set(String *string, const size_t index, const char *text){
 
     return;
 }
-/*
+
 //copy the element at an index to the "ret" variable
-MSAPI void String_get(String *string, const size_t index, char *ret);
-*/
+MSAPI void String_get(String *string, const size_t index, char *ret){
+    if(!string || string->size <= index){
+        *ret = '\0';
+        return;
+    }
+    *ret = string->text[index];
+    return;
+}
+
 
 MSAPI void String_clear(String *string){
     string->size = 0;
+    return;
+}
+
+MSAPI void String_resize(String *string, size_t capacity){
+    if(!string) return;
+
+    if(!string->text){
+        string->size = 0;
+        string->capacity = capacity;
+        string->text = malloc(string->capacity + 1);
+        string->text[0] = '\0';
+    }
+    else{
+        string->size = string->size <= capacity ? string->size : capacity;
+        string->capacity = capacity;
+        string->text = realloc(string->text, capacity + 1);
+        string->text[string->size] = '\0';
+    }
     return;
 }
 
@@ -192,9 +217,9 @@ MSAPI String String_copyReturn(String *src){
 }
 
 MSAPI void String_copy(String *dest, String *src){
-    if(dest->text){
-        free(dest->text);
-    }
+    // if(dest->text){
+    //     free(dest->text);
+    // }
     dest->size = src->size;
     dest->capacity = src->capacity;
     dest->text = malloc(src->capacity * sizeof(char));

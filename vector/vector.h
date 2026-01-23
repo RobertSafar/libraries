@@ -13,6 +13,9 @@ typedef struct Vector{
     void *data;
 }Vector;
 
+//empty vector
+#define VECTOR_EMPTY(type) (Vector){0, 0, sizeof(type), NULL}
+
 //------------------------------------------------------------------------------------------------------------------------------------\\
 //here are some vector functions for working with simple data that doesn't point to any allocated memory.
 //functions like Vector_copy and Vector_destroy will not work properly with data like strings, vectors, or any
@@ -55,8 +58,9 @@ void Vector_resize(Vector *vector, size_t capacity);
 
 //creates a copy of an existing vector. Returns the copy
 Vector Vector_copyReturn(Vector *src);
-//copies the vector "src" into the vector "dest". If vector dest is not empty, it frees the memory.
-//if vector "dest" contains dynamic elements that have been alocated, they don't get freed -> memory leaks
+//copies the vector "src" into the vector "dest". If vector dest is not empty, it gets over written.
+//if vector "dest" contains dynamic elements that have been alocated, they don't get freed -> memory leaks.
+//dest vector MUST be destroyed before being copied into, or MUST be a refference attained from Vector_getReference()
 void Vector_copy(Vector *dest, Vector *src);
 
 
@@ -103,6 +107,9 @@ typedef struct CVector{
     CVcopy_func copy;
 }CVector;
 
+//empty CVector
+#define CVECTOR_EMPTY(type, destroy, copy) (Vector){0, 0, sizeof(type), NULL, destroy, copy}
+
 //create a vector with enough sapce for 10 elements
 CVector CVector_create(int element_size, CVdestroy_func destroy, CVcopy_func copy);
 //create a default 1D vector (Same as the simple Vector) with enough sapce for 10 elements
@@ -131,8 +138,12 @@ void CVector_pop(CVector *vector, void *ret);
 void CVector_insert(CVector *vector, const size_t index, const void *value);
 //rewrite one of the elements with a value
 void CVector_set(CVector *vector, const size_t index, const void *value);
-//copy the element at an index to the "ret" variable
+//copy the element at an index to the "ret" variable. If the elements contain dynamic memory, ret variable has to be freed
 void CVector_get(CVector *vector, const size_t index, void *ret);
+//copy the element at an index to the "ret" variable. If the elements contain pointers, data pointed to by these pointers
+//is shared with the vector element and changing it will change the vector element. If the pointers point to dynamic memory
+//this memory must not be freed by the ret variable
+void CVector_getReference(CVector *vector, const size_t index, void *ret);
 //return the pointer to an element
 void *CVector_getPointer(CVector *vector, const size_t index);
 //set size of the vector to 0
@@ -144,8 +155,9 @@ void CVector_resize(CVector *vector, size_t capacity);
 
 //creates a copy of an existing vector. Returns the copy
 CVector CVector_copyReturn(CVector *src);
-//copies the vector "src" into the vector "dest". If vector dest is not empty, it frees the memory.
-//if vector "dest" contains dynamic elements that have been alocated, they don't get freed -> memory leaks
+//copies the vector "src" into the vector "dest". If vector dest is not empty, it gets over written.
+//if vector "dest" contains dynamic elements that have been alocated, they don't get freed -> memory leaks.
+//dest vector MUST be destroyed before being copied into, or MUST be a refference attained from CVector_getReference()
 void CVector_copy(CVector *dest, CVector *src);
 //wrapper that calls Vector_copy under the hood
 void Vector_copy_wrapper(void *dst, const void *src);
