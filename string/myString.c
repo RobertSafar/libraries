@@ -27,10 +27,12 @@ MSAPI String String_create(){
     return string;
 }
 
-MSAPI String String_createCapacity(size_t capacity){
+MSAPI String String_createCapacity(ssize_t capacity){
+    if(capacity < 0) return STRING_EMPTY();
+
     String string;
     string.size = 0;
-    string.capacity = capacity + 1;
+    string.capacity = (size_t) capacity + 1;
     string.text = malloc(sizeof(char) * string.capacity);
     string.text[string.size] = '\0'; 
     return string;
@@ -38,16 +40,19 @@ MSAPI String String_createCapacity(size_t capacity){
 
 /*
 //create a String with a desired amount of elements and set it to be full
-MSAPI String String_createSize(size_t size);
+MSAPI String String_createSize(ssize_t size);
 */
 
 
-MSAPI String String_createSizeSet(size_t size, char value){
+MSAPI String String_createSizeSet(ssize_t size, char value){
+    if(size < 0) return STRING_EMPTY();
+
+    size_t sz = (size_t) size;
     String string;
-    string.size = size;
-    string.capacity = size + 1 + SIZE_RESERVE;
+    string.size = sz;
+    string.capacity = sz + 1 + SIZE_RESERVE;
     string.text = malloc(sizeof(char) * string.capacity);
-    memset(string.text, value, (size * sizeof(char)));
+    memset(string.text, value, (sz * sizeof(char)));
     string.text[string.size] = '\0'; 
     return string;
 }
@@ -69,6 +74,8 @@ MSAPI String String_createAssign(char *text){
 MSAPI void String_destroy(String *string){
     free(string->text);
     string->text = NULL;
+    string->capacity = 0;
+    string->size = 0;
     return;
 }
 
@@ -124,10 +131,12 @@ MSAPI void String_append(String *string, const char *text){
 MSAPI void String_pop(String *string, char *ret);
 */
 
-MSAPI void String_insert(String *string, const size_t index, const char *text){
-    if(!string) return;
-    else if(index > string->size) return;
-    else if(index == string->size){
+MSAPI void String_insert(String *string, const ssize_t index, const char *text){
+    if(!string || index < 0) return;
+
+    size_t idx = (size_t) index;
+    if(idx > string->size) return;
+    else if(idx == string->size){
         String_append(string, text);
         return;
     }
@@ -141,43 +150,46 @@ MSAPI void String_insert(String *string, const size_t index, const char *text){
         string->capacity = string->size + len + 1 + SIZE_RESERVE;
         string->text = realloc(string->text, string->capacity);
     }
-    memcpy(string->text + index + len, string->text + index, (sizeof(char) * string->size - index));
-    memcpy(string->text + index, text, (sizeof(char) * len));
+    memcpy(string->text + idx + len, string->text + idx, (sizeof(char) * string->size - idx));
+    memcpy(string->text + idx, text, (sizeof(char) * len));
     string->size += len;
     string->text[string->size] = '\0';
 
     return;
 }
 
-MSAPI void String_set(String *string, const size_t index, const char *text){
-    if(!string) return;
+MSAPI void String_set(String *string, const ssize_t index, const char *text){
+    if(!string || !string->text) return;
 
+    size_t idx = (size_t) index;
+    if(idx >= string->size || index < 0){
+        return;
+    }
     size_t len = 0;
     while(*(text + len) != '\0'){
         len++;
     }
 
-    size_t new_size = index + len > string->size ? index + len : string->size;
+    size_t new_size = idx + len > string->size ? idx + len : string->size;
 
     if(new_size > string->capacity){
         string->capacity = new_size + 1 + SIZE_RESERVE;
         string->text = realloc(string->text, string->capacity);
     }
-    memcpy(string->text + index, text, (sizeof(char) * len));
+    memcpy(string->text + idx, text, (sizeof(char) * len));
     string->size = new_size;
     string->text[string->size] = '\0';
 
     return;
 }
 
-//copy the element at an index to the "ret" variable
-MSAPI void String_get(String *string, const size_t index, char *ret){
-    if(!string || string->size <= index){
+MSAPI int String_get(String *string, const ssize_t index, char *ret){
+    if(!string || !string->text){
         *ret = '\0';
-        return;
+        return 0;
     }
     *ret = string->text[index];
-    return;
+    return 0;
 }
 
 
@@ -186,19 +198,21 @@ MSAPI void String_clear(String *string){
     return;
 }
 
-MSAPI void String_resize(String *string, size_t capacity){
-    if(!string) return;
+MSAPI void String_resize(String *string, ssize_t capacity){
+    if(!string || capacity < 0) return;
 
+    size_t cap = (size_t) capacity;
     if(!string->text){
         string->size = 0;
-        string->capacity = capacity;
+        string->capacity = cap;
         string->text = malloc(string->capacity + 1);
         string->text[0] = '\0';
     }
+    else if(string->capacity == cap) return;
     else{
-        string->size = string->size <= capacity ? string->size : capacity;
-        string->capacity = capacity;
-        string->text = realloc(string->text, capacity + 1);
+        string->size = string->size <= cap ? string->size : cap;
+        string->capacity = cap;
+        string->text = realloc(string->text, string->capacity + 1);
         string->text[string->size] = '\0';
     }
     return;
@@ -207,6 +221,8 @@ MSAPI void String_resize(String *string, size_t capacity){
 
 
 MSAPI String String_copyReturn(String *src){
+    if(!src) return STRING_NULL();
+
     String string;
     string.size = src->size;
     string.capacity = src->capacity;
@@ -217,6 +233,7 @@ MSAPI String String_copyReturn(String *src){
 }
 
 MSAPI void String_copy(String *dest, String *src){
+    if(!dest || !src) return;
     // if(dest->text){
     //     free(dest->text);
     // }
@@ -230,39 +247,56 @@ MSAPI void String_copy(String *dest, String *src){
 
 
 
-MSAPI long long int String_getCapacity(String *string){
+MSAPI size_t String_getCapacity(String *string){
     if(string) return string->capacity;
     return 0;
 }
 
-MSAPI long long int String_getSize(String *string){
+MSAPI size_t String_getSize(String *string){
     if(string) return string->size;
     return 0;
 }
 
+MSAPI char *String_getTextPointer(String *string){
+    if(string) return string->text;
+    return NULL;
+}
 
 
-MSAPI void String_shiftRightFromBy(String *string, const size_t index, const size_t amount){
-    if(!string || index >= string->size || amount == 0 || index < 0) return;
-    else if(string->size + amount > string->capacity){
-        string->capacity = string->size + amount + SIZE_RESERVE;
+
+MSAPI void String_shiftRightFromBy(String *string, const ssize_t index, const ssize_t amount){
+    if(!string || amount == 0 || !string->size) return;
+
+    size_t amt = (size_t) amount;
+    size_t idx = (size_t) index;
+    if(idx >= string->size || index < 0) {
+        return;
+    }
+    else if(string->size + amt > string->capacity){
+        string->capacity = string->size + amt + SIZE_RESERVE;
         string->text = realloc(string->text, string->capacity);
     }
-    string->size += amount;
-    memmove(string->text + index + amount, string->text + index, sizeof(char) * (string->size - index));
-    memset(string->text + index, ' ', amount);
+    string->size += amt;
+    memmove(string->text + idx + amt, string->text + idx, sizeof(char) * (string->size - idx));
+    memset(string->text + idx, ' ', amt);
     string->text[string->size] = '\0';
     return;
 }
 
-MSAPI void String_shiftLeftFromBy(String *string, const size_t index, const size_t amount){
-    if(!string || index < 0 || amount == 0) return;
-    size_t new_index = index >= string->size ? string->size - 1 : index;
-    size_t copy_len = new_index >= amount ? new_index - amount + 1 : 0;
-    memmove(string->text, string->text + amount, sizeof(char) * copy_len);
+MSAPI void String_shiftLeftFromBy(String *string, const ssize_t index, const ssize_t amount){
+    if(!string || amount <= 0 || !string->size) return;
+
+    size_t amt = (size_t) amount;
+    size_t idx = (size_t) index;
+    if(idx >= string->size || index < 0) {
+        return;
+    }
+    size_t new_index = idx >= string->size ? string->size - 1 : idx;
+    size_t copy_len = new_index >= amt ? new_index - amt + 1 : 0;
+    memmove(string->text, string->text + amt, sizeof(char) * copy_len);
     memset(string->text + copy_len, ' ', new_index + 1 - copy_len);
 
-    if(new_index == (string->size - 1)) string->size = string->size > amount ? string->size - amount : 0;
+    if(new_index == (string->size - 1)) string->size = string->size > amt ? string->size - amt : 0;
     string->text[string->size] = '\0';
 
     return;

@@ -6,6 +6,13 @@
 #include <memory.h>
 #include <string.h>
 
+#ifndef SSIZE_T
+#define SSIZE_T
+    #if defined (_WIN32) || defined(_WIN64)
+        typedef long long int ssize_t;
+    #endif
+#endif
+
 typedef struct Vector{
     size_t size;
     size_t capacity;
@@ -13,8 +20,12 @@ typedef struct Vector{
     void *data;
 }Vector;
 
-//empty vector
+//empty vector with everything set to 0
+#define VECTOR_NULL() (Vector){0, 0, 0, NULL}
+//empty vector using data type
 #define VECTOR_EMPTY(type) (Vector){0, 0, sizeof(type), NULL}
+//empty vector using data type size
+#define _VECTOR_EMPTY(element_size) (Vector){0, 0, element_size, NULL}
 
 //------------------------------------------------------------------------------------------------------------------------------------\\
 //here are some vector functions for working with simple data that doesn't point to any allocated memory.
@@ -25,13 +36,13 @@ typedef struct Vector{
 //create a vector with enough sapce for 10 elements
 Vector Vector_create(int element_size);
 //create a vector with a desired amount of elemnts
-Vector Vector_createCapacity(size_t capacity, int element_size);
+Vector Vector_createCapacity(ssize_t capacity, int element_size);
 //create a vector with a desired amount of elements and set it to be full
-Vector Vector_createSize(size_t size, int element_size);
+Vector Vector_createSize(ssize_t size, int element_size);
 //create a vector with a desired amount of elements and fill it up with a value
-Vector Vector_createSizeSet(size_t size, void *value, int element_size);
+Vector Vector_createSizeSet(ssize_t size, void *value, int element_size);
 //create a vector with a desired amount of elements and fill it up with a value
-Vector Vector_createCapacitySizeSet(size_t capacity, size_t size, void *value, int element_size);
+Vector Vector_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size);
 //free the vector. If the elements also use dynamic memory, they don't get freed -> memory leaks
 void Vector_destroy(Vector *vector);
 
@@ -39,21 +50,21 @@ void Vector_destroy(Vector *vector);
 //add an element to the end of a vector
 void Vector_push(Vector *vector, const void *value);
 //get the last element of a vector and return it in the "ret" variable. Removes the last element
-void Vector_pop(Vector *vector, void *ret);
+int Vector_pop(Vector *vector, void *ret);
 //insert an element anywhere inside a vecter, if inserting outside the used memory 
 //(i.e. vector has 10 elements and we are inserting to position 15) nothing is done
-void Vector_insert(Vector *vector, const size_t index, const void *value);
+void Vector_insert(Vector *vector, const ssize_t index, const void *value);
 //rewrite one of the elements with a value
-void Vector_set(Vector *vector, const size_t index, const void *value);
+void Vector_set(Vector *vector, const ssize_t index, const void *value);
 //copy the element at an index to the "ret" variable
-void Vector_get(Vector *vector, const size_t index, void *ret);
+int Vector_get(Vector *vector, const ssize_t index, void *ret);
 //return the pointer to an element
-void *Vector_getPointer(Vector *vector, const size_t index);
+void *Vector_getPointer(Vector *vector, const ssize_t index);
 //set size of the vector to 0
 void Vector_clear(Vector *vector);
-//set capacity of the vector to the desired amount.
+//set capacity (NOT SIZE) of the vector to the desired amount.
 //If the new capacity is less than the current size the trailing elements will be lost
-void Vector_resize(Vector *vector, size_t capacity);
+void Vector_resize(Vector *vector, ssize_t capacity);
 
 
 //creates a copy of an existing vector. Returns the copy
@@ -72,13 +83,13 @@ size_t Vector_getSize(Vector *vector);
 int Vector_getSizeOfElements(Vector *vector);
 
 //shifts all elements of a vector from the position "index" to the right 
-void Vector_shiftRightFrom(Vector *vector, const size_t index);
+void Vector_shiftRightFrom(Vector *vector, const ssize_t index);
 //shifts all elements of a vector from the position "index" to the left 
-void Vector_shiftLeftFrom(Vector *vector, const size_t index);
+void Vector_shiftLeftFrom(Vector *vector, const ssize_t index);
 //shifts all elements of a vector from the position "index" to the right by "amount"
-void Vector_shiftRightFromBy(Vector *vector, const size_t index, size_t amount);
+void Vector_shiftRightFromBy(Vector *vector, const ssize_t index, ssize_t amount);
 //shifts all elements of a vector from the position "index" to the left by "amount"
-void Vector_shiftLeftFromBy(Vector *vector, const size_t index, size_t amount);
+void Vector_shiftLeftFromBy(Vector *vector, const ssize_t index, ssize_t amount);
 
 
 //sort the vector according to the supplied compare function
@@ -107,8 +118,12 @@ typedef struct CVector{
     CVcopy_func copy;
 }CVector;
 
-//empty CVector
-#define CVECTOR_EMPTY(type, destroy, copy) (Vector){0, 0, sizeof(type), NULL, destroy, copy}
+//empty CVector with everything set to 0
+#define CVECTOR_NULL() (CVector){0, 0, 0, NULL, NULL, NULL}
+//empty CVector using data type
+#define CVECTOR_EMPTY(type, destroy, copy) (CVector){0, 0, sizeof(type), NULL, destroy, copy}
+//empty CVector using element size
+#define _CVECTOR_EMPTY(element_size, destroy, copy) (CVector){0, 0, element_size, NULL, destroy, copy}
 
 //create a vector with enough sapce for 10 elements
 CVector CVector_create(int element_size, CVdestroy_func destroy, CVcopy_func copy);
@@ -117,13 +132,13 @@ CVector CVector_createDefault1D(int element_size);
 //create a default 2D vector (Vector of vectors) with enough sapce for 10 elements
 CVector CVector_createDefault2D(int element_size);
 //create a vector with a desired amount of elemnts
-CVector CVector_createCapacity(size_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+CVector CVector_createCapacity(ssize_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy);
 //create a vector with a desired amount of elements and set it to be full
-CVector CVector_createSize(size_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+CVector CVector_createSize(ssize_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy);
 //create a vector with a desired amount of elements and fill it up with a value
-CVector CVector_createSizeSet(size_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+CVector CVector_createSizeSet(ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy);
 //create a vector with a desired amount of elements and fill it up with a value
-CVector CVector_createCapacitySizeSet(size_t capacity, size_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+CVector CVector_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy);
 //free the vector. If the elements also use dynamic memory, they don't get freed -> memory leaks
 void CVector_destroy(CVector *vector);
 //wrapper that calls Vector_destroy under the hood
@@ -132,25 +147,25 @@ void Vector_destroy_wrapper(void *element);
 //add an element to the end of a vector
 void CVector_push(CVector *vector, const void *value);
 //get the last element of a vector and return it in the "ret" variable. Removes the last element
-void CVector_pop(CVector *vector, void *ret);
+int CVector_pop(CVector *vector, void *ret);
 //insert an element anywhere inside a vecter, if inserting outside the used memory 
 //(i.e. vector has 10 elements and we are inserting to position 15) nothing is done
-void CVector_insert(CVector *vector, const size_t index, const void *value);
+void CVector_insert(CVector *vector, const ssize_t index, const void *value);
 //rewrite one of the elements with a value
-void CVector_set(CVector *vector, const size_t index, const void *value);
+void CVector_set(CVector *vector, const ssize_t index, const void *value);
 //copy the element at an index to the "ret" variable. If the elements contain dynamic memory, ret variable has to be freed
-void CVector_get(CVector *vector, const size_t index, void *ret);
+int CVector_get(CVector *vector, const ssize_t index, void *ret);
 //copy the element at an index to the "ret" variable. If the elements contain pointers, data pointed to by these pointers
 //is shared with the vector element and changing it will change the vector element. If the pointers point to dynamic memory
 //this memory must not be freed by the ret variable
-void CVector_getReference(CVector *vector, const size_t index, void *ret);
+int CVector_getReference(CVector *vector, const ssize_t index, void *ret);
 //return the pointer to an element
-void *CVector_getPointer(CVector *vector, const size_t index);
+void *CVector_getPointer(CVector *vector, const ssize_t index);
 //set size of the vector to 0
 void CVector_clear(CVector *vector);
-//set capacity of the vector to the desired amount.
+//set capacity (NOT SIZE) of the vector to the desired amount.
 //If the new capacity is less than the current size the trailing elements will be lost
-void CVector_resize(CVector *vector, size_t capacity);
+void CVector_resize(CVector *vector, ssize_t capacity);
 
 
 //creates a copy of an existing vector. Returns the copy
@@ -170,13 +185,13 @@ size_t CVector_getSize(CVector *vector);
 int CVector_getSizeOfElements(CVector *vector);
 
 //shifts all elements of a vector from the position "index" to the right 
-void CVector_shiftRightFrom(CVector *vector, const size_t index);
+void CVector_shiftRightFrom(CVector *vector, const ssize_t index);
 //shifts all elements of a vector from the position "index" to the left 
-void CVector_shiftLeftFrom(CVector *vector, const size_t index);
+void CVector_shiftLeftFrom(CVector *vector, const ssize_t index);
 //shifts all elements of a vector from the position "index" to the right by "amount"
-void CVector_shiftRightFromBy(CVector *vector, const size_t index, size_t amount);
+void CVector_shiftRightFromBy(CVector *vector, const ssize_t index, ssize_t amount);
 //shifts all elements of a vector from the position "index" to the left by "amount"
-void CVector_shiftLeftFromBy(CVector *vector, const size_t index, size_t amount);
+void CVector_shiftLeftFromBy(CVector *vector, const ssize_t index, ssize_t amount);
 
 
 //sort the vector according to the supplied compare function
