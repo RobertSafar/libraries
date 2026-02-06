@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <string.h>
+#include <stdbool.h>
 
 //how much larger will the capacity be than the size of a string when memory
 //is being allocated, either during the creation of strings or during resizing
@@ -95,9 +96,18 @@ void String_shiftLeftFromBy(String *string, const ssize_t index, const ssize_t a
 
 
 //compare 2 strings
-int String_compare(String *str1, String *str2);
-//return the pointer the the first occurance of "character"
-char *String_chr(String *str1, char character);
+bool String_isEqual(String *str1, String *str2);
+//return the index of the first occurance of "character"
+long long int String_chr(String *str1, char character);
+//remove white spaces from the beginning and end of a string
+void String_stripWhiteSpaces(String *string);
+//remove all letters that match "character" from "string"
+void String_removeCharacter(String *string, char character);
+//remove all letters that can be found in the "characters" String from "string"
+void String_removeCharacterSet(String *string, String *characters);
+//check if a string ends with a certain suffix
+bool String_endsWith(String *string, const char *suffix);
+
 
 //sort the String according to the supplied compare function
 void String_print(const String *string);

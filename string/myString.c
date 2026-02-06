@@ -72,6 +72,8 @@ MSAPI String String_createAssign(char *text){
 }
 
 MSAPI void String_destroy(String *string){
+    if(!string || !string->text) return;
+
     free(string->text);
     string->text = NULL;
     string->capacity = 0;
@@ -97,9 +99,21 @@ MSAPI void String_assign(String *string, const char *text){
     return;
 }
 
+MSAPI void String_assignString(String *string, String *src){
+    if(src->size > string->capacity){
+        string->capacity = src->size + 1 + SIZE_RESERVE;
+        free(string->text);
+        string->text = malloc(sizeof(char) * string->capacity);
+    }
+    memcpy(string->text, src->text, (sizeof(char) * src->size));
+    string->size = src->size;
+    string->text[string->size] = '\0';
+    return;
+}
+
 MSAPI void String_appendChar(String *string, const char value){
     if(!string) return;
-    if(string->size == string->capacity){
+    if(string->size + 1 == string->capacity){
         string->capacity *= 2;
         string->text = realloc(string->text, string->capacity);
     }
@@ -300,6 +314,146 @@ MSAPI void String_shiftLeftFromBy(String *string, const ssize_t index, const ssi
     string->text[string->size] = '\0';
 
     return;
+}
+
+
+
+MSAPI bool String_isEqual(String *str1, String *str2){
+    if(str1->size != str2->size) return false;
+
+    for(size_t i = 0; i < str1->size; i++){
+        if(str1->text[i] != str2->text[i]) return false;
+    }
+    return true;
+}
+
+long long int String_chr(String *str, char character){
+    if(str->size <= 0) return -1;
+
+    for(size_t i = 0; i < str->size; i++){
+        if(str->text[i] == character) return (long long int)i;
+    }
+    return -1;
+}
+
+void String_stripWhiteSpaces(String *string){
+    if(!string || !string->size) return;
+
+    //first non white space character
+    size_t first_char = 0;
+    //last non white space character
+    size_t last_char = 0;
+    //are there any non white space character
+    bool found_char = false;
+    for(size_t i = 0; i < string->size; i++){
+        switch (string->text[i])
+        {
+        case ' ':
+        case '\n':
+        case '\t':
+        case '\r':
+            continue;;
+        default:
+            found_char = true;
+            first_char = i;
+            last_char = i;
+            goto character_found;
+            break;
+        }
+    }
+
+    if(!found_char){
+        string->size = 0;
+        string->text = '\0';
+        return;
+    }
+
+    character_found:
+    for(size_t i = first_char + 1; i < string->size; i++){
+        switch (string->text[i])
+        {
+        case ' ':
+        case '\n':
+        case '\t':
+        case '\r':
+            continue;;
+        default:
+            last_char = i;
+            break;
+        }
+    }
+
+    string->size = last_char + 1;
+    string->text[last_char + 1] = '\0';
+    String_shiftLeftFromBy(string, (ssize_t)last_char, (ssize_t)first_char);
+    return;
+}
+
+void String_removeCharacter(String *string, char character){
+    if(!string || !string->size) return;
+
+    size_t write_index = 0;
+    size_t read_index = 0;
+    // for(size_t i = 0; i < string->size; i++){
+    //     if(string->text[i] == character){
+    //         write_index = i;
+    //         read_index = i + 1;
+    //         break;
+    //     }
+    // }
+
+
+    for(size_t i = write_index; i < string->size; i++){
+        if(string->text[i] != character){
+            string->text[write_index] = string->text[i];
+            write_index++;
+            continue;
+        }
+    }
+    string->size = write_index;
+    string->text[write_index] = '\0';
+}
+
+void String_removeCharacterSet(String *string, String *characters){
+    if(!string || !characters || !string->size || !characters->size) return;
+
+    bool look_up[256] = {false};
+    for(size_t i = 0; i < characters->size; i++){
+        unsigned char c = characters->text[i];
+        look_up[c] = true;
+    }
+
+    size_t write_index = 0;
+    for(size_t i = write_index; i < string->size; i++){
+        unsigned char c = string->text[i];
+        if(!look_up[c]){
+            string->text[write_index] = string->text[i];
+            write_index++;
+            continue;
+        }
+    }
+    string->size = write_index;
+    string->text[write_index] = '\0';
+}
+
+bool String_endsWith(String *string, const char *suffix){
+    if(!string || !string->size || !suffix) return false;
+
+    size_t len = 0;
+    while (len <= string->size && suffix[len] != '\0'){
+        len++;
+    }
+
+    if(len > string->size) return false;
+
+    size_t indexStr = string->size - 1;
+    size_t indexSuf = len - 1;
+    for(size_t i = 0; i < len; i++){
+        if(string->text[indexStr] != suffix[indexSuf]) return false;
+        indexStr--;
+        indexSuf--;
+    }
+    return true;
 }
 
 
