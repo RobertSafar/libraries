@@ -131,7 +131,7 @@ MSAPI void String_append(String *string, const char *text){
         len++;
     }
     
-    if(string->size + len > string->capacity){
+    if(string->size + len >= string->capacity){
         string->capacity = string->size + len + 1 + SIZE_RESERVE;
         string->text = realloc(string->text, string->capacity);
     }
@@ -160,7 +160,7 @@ MSAPI void String_insert(String *string, const ssize_t index, const char *text){
         len++;
     }
     
-    if(string->size + len > string->capacity){
+    if(string->size + len >= string->capacity){
         string->capacity = string->size + len + 1 + SIZE_RESERVE;
         string->text = realloc(string->text, string->capacity);
     }
