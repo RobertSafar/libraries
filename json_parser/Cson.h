@@ -13,6 +13,7 @@ typedef enum{
     JSON_INT,
     JSON_DOUBLE,
     JSON_BOOLEAN,
+    JSON_NULL,
     JSON_ARRAY,
     JSON_OBJECT
 }JsonType;
@@ -25,6 +26,7 @@ typedef struct JsonParserValue{
     JsonType type;
     union {
         int number;
+        double decimal;
         bool boolean;
         String string;
         CVector array;
@@ -37,15 +39,15 @@ typedef struct JsonKeyValuePair{
     JsonParserValue value;
 }JsonKeyValuePair;
 
-typedef struct JsonParser{
-    int a;
-}JsonParser;
-
-typedef void (*jsonParseFunction)();
 
 
-
-
+void Cson_free(JsonParserValue *node);
+JsonParserValue Cson_getObject(String *data, size_t *start);
+JsonParserValue Cson_getArray(String *data, size_t *start);
+JsonParserValue Cson_getString(String *data, size_t *start);
+JsonParserValue Cson_getBoolean(String *data, size_t *start);
+JsonParserValue Cson_getNull(String *data, size_t *start);
+JsonParserValue Cson_getNumeric(String *data, size_t *start);
 JsonParserValue Cson_loadData(String *data);
 
 #endif
