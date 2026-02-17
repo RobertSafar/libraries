@@ -40,14 +40,26 @@ typedef struct JsonKeyValuePair{
 }JsonKeyValuePair;
 
 
+void Cson_printNode(JsonParserValue *node);
+
+void Cson_printKeyValtype(JsonKeyValuePair *node, int level);
+void Cson_printASTtype(JsonParserValue *node, int level);
+
+void Cson_printKeyVal(JsonKeyValuePair *node, int level);
+void Cson_printAST(JsonParserValue *node, int level);
 
 void Cson_free(JsonParserValue *node);
-JsonParserValue Cson_getObject(String *data, size_t *start);
-JsonParserValue Cson_getArray(String *data, size_t *start);
-JsonParserValue Cson_getString(String *data, size_t *start);
-JsonParserValue Cson_getBoolean(String *data, size_t *start);
-JsonParserValue Cson_getNull(String *data, size_t *start);
-JsonParserValue Cson_getNumeric(String *data, size_t *start);
+
+
+JsonParserValue *Cson_get(JsonParserValue *root, char *path);
+
+
+JsonParserValue Cson_parseObject(String *data, size_t *start);
+JsonParserValue Cson_parseArray(String *data, size_t *start);
+JsonParserValue Cson_parseString(String *data, size_t *start);
+JsonParserValue Cson_parseBoolean(String *data, size_t *start);
+JsonParserValue Cson_parseNull(String *data, size_t *start);
+JsonParserValue Cson_parseNumeric(String *data, size_t *start);
 JsonParserValue Cson_loadData(String *data);
 
 #endif
