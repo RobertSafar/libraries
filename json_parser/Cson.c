@@ -14,6 +14,7 @@
 #endif
 
 CSAPI void Cson_printNode(JsonParserValue *node){
+    if(!node) return;
     switch (node->type){
     case JSON_ERROR:
         printf("JSON_ERROR");
@@ -603,7 +604,8 @@ CSAPI JsonParserValue Cson_parseString(String *data, size_t *start){
         String_get(data, index, &character);
         switch (character) {
             case '\\':
-                if(index + 1 == input_size){
+                index++;
+                if(index == input_size){
                     return (JsonParserValue){.type = JSON_ERROR};
                 }
                 break;
@@ -620,6 +622,8 @@ CSAPI JsonParserValue Cson_parseString(String *data, size_t *start){
         }
         index++;
     }
+
+    return (JsonParserValue){.type = JSON_ERROR};
 
     return_string:
     JsonParserValue ret_val = {

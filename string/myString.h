@@ -50,6 +50,8 @@ void String_destroy(String *string);
 
 //copy some text into the String
 void String_assign(String *string, const char *text);
+//copy some text of length "length" from input "text"
+void String_assignLength(String *string, const char *text, size_t length);
 //copy the text from src string into the String
 void String_assignString(String *string, String *src);
 //add a character to the end of a String
@@ -67,6 +69,9 @@ void String_insert(String *string, const ssize_t index, const char *text);
 void String_set(String *string, const ssize_t index, const char *text);
 //copy the element at an index to the "ret" variable
 int String_get(String *string, const ssize_t index, char *ret);
+//return the character at the index "index" without checking if "string" exists or is NULL,
+//and without checking if the index is valid
+inline char String_getUnsafe(String *string, const ssize_t index);
 //set size of the String to 0
 void String_clear(String *string);
 //change the capacity of a string, if current size is greater than te new capacity
@@ -87,6 +92,8 @@ size_t String_getCapacity(String *string);
 size_t String_getSize(String *string);
 //return the pointer to the string
 char *String_getTextPointer(String *string);
+//return the pointer to the string starting at index "offset"
+char *String_getTextPointerOffset(String *string, ssize_t offset);
 
 
 //shifts all elements of a String from the position "index" to the right by "amount" 

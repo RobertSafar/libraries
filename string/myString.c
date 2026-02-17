@@ -84,11 +84,13 @@ MSAPI void String_destroy(String *string){
 
 
 MSAPI void String_assign(String *string, const char *text){
+    if(!string || !text) return;
+
     size_t len = 0;
     while(*(text + len) != '\0'){
         len++;
     }
-    if(len > string->capacity){
+    if(len >= string->capacity){
         string->capacity = len + 1 + SIZE_RESERVE;
         free(string->text);
         string->text = malloc(sizeof(char) * string->capacity);
@@ -99,8 +101,30 @@ MSAPI void String_assign(String *string, const char *text){
     return;
 }
 
+MSAPI void String_assignLength(String *string, const char *text, size_t length){
+    if(!string || !text) return;
+
+    for(size_t i = 0; i < length; i++){
+        if(text[i] == '\0'){
+            length = i;
+            break;
+        }
+    }
+    if(length >= string->capacity){
+        string->capacity = length + 1 + SIZE_RESERVE;
+        free(string->text);
+        string->text = malloc(sizeof(char) * string->capacity);
+    }
+    memcpy(string->text, text, (sizeof(char) * length));
+    string->size = length;
+    string->text[string->size] = '\0';
+    return;
+}
+
 MSAPI void String_assignString(String *string, String *src){
-    if(src->size > string->capacity){
+    if(!src || !string) return;
+
+    if(src->size >= string->capacity){
         string->capacity = src->size + 1 + SIZE_RESERVE;
         free(string->text);
         string->text = malloc(sizeof(char) * string->capacity);
@@ -206,6 +230,10 @@ MSAPI int String_get(String *string, const ssize_t index, char *ret){
     return 0;
 }
 
+MSAPI inline char String_getUnsafe(String *string, const size_t index){
+    return string->text[index];
+}
+
 
 MSAPI void String_clear(String *string){
     string->size = 0;
@@ -273,6 +301,11 @@ MSAPI size_t String_getSize(String *string){
 
 MSAPI char *String_getTextPointer(String *string){
     if(string) return string->text;
+    return NULL;
+}
+
+MSAPI char *String_getTextPointerOffset(String *string, ssize_t offset){
+    if(offset >= 0 && (size_t)offset < string->size && string) return string->text + (size_t)offset;
     return NULL;
 }
 
