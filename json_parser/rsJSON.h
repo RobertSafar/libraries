@@ -57,17 +57,17 @@ typedef struct RSJsonValue {
 }RSJsonValue;
 
 
-void freeAST(RSJsonValue *root);
+void RSon_freeAST(RSJsonValue *root);
 
-RSJsonValue parseNull(char *start, char **index);
+RSJsonValue RSon_parseNull(char *start, char **index);
 
-RSJsonValue parseBoolean(char *start, char **index);
+RSJsonValue RSon_parseBoolean(char *start, char **index);
 
-RSJsonValue parseString(char *start, char *end, char **index);
+RSJsonValue RSon_parseString(char *start, char *end, char **index);
 
-RSJsonValue parseNumber(char *start, char *end, char **index);
+RSJsonValue RSon_parseNumber(char *start, char *end, char **index);
 
-RSJsonValue loadDataFromString(char input[]);
+RSJsonValue RSon_loadDataFromString(char input[]);
 
 void RSon_printASTKeyValtype(RSJsonValue *node, int level);
 

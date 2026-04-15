@@ -125,7 +125,7 @@ static bool isWhitespace(char *index){
     return false;
 }
 
-RSAPI void freeAST(RSJsonValue *root){
+RSAPI void RSon_freeAST(RSJsonValue *root){
     switch(root->type){
         case JSON_ERROR:
         case JSON_BOOLEAN:
@@ -135,13 +135,13 @@ RSAPI void freeAST(RSJsonValue *root){
             break;
         case JSON_ARRAY:
             for(int i = 0; i < root->data.array.size; i++){
-                freeAST(root->data.array.elements + i);
+                RSon_freeAST(root->data.array.elements + i);
             }
             free(root->data.array.elements);
             break;
         case JSON_OBJECT:
             for(int i = 0; i < root->data.object.size; i++){
-                freeAST(root->data.object.values + i);
+                RSon_freeAST(root->data.object.values + i);
             }
             free(root->data.object.keys);
             free(root->data.object.values);
@@ -152,7 +152,7 @@ RSAPI void freeAST(RSJsonValue *root){
 
 
 
-RSAPI RSJsonValue parseNull(char *start, char **index){
+RSAPI RSJsonValue RSon_parseNull(char *start, char **index){
     RSJsonValue retval = {.type = JSON_ERROR};
     
     if((*start == 'n') && (*(start+1) == 'u') && (*(start+2) == 'l') && (*(start+3) == 'l')){
@@ -163,7 +163,7 @@ RSAPI RSJsonValue parseNull(char *start, char **index){
     return retval;
 }
 
-RSAPI RSJsonValue parseBoolean(char *start, char **index){
+RSAPI RSJsonValue RSon_parseBoolean(char *start, char **index){
     RSJsonValue retval = {.type = JSON_ERROR};
 
     if((*start == 't') && (*(start+1) == 'r') && (*(start+2) == 'u') && (*(start+3) == 'e')){
@@ -206,7 +206,7 @@ RSAPI RSJsonValue parseString(char *start, char *end, char **index){
     return retval;
 }
 
-RSAPI RSJsonValue parseNumber(char *start, char *end, char **index){ //index doesn't get updated and so there is an infinite loop
+RSAPI RSJsonValue RSon_parseNumber(char *start, char *end, char **index){ //index doesn't get updated and so there is an infinite loop
     RSJsonNumber number = {.start = start, .end = NULL, .is_integer = true, .is_numeric = true};
     RSJsonValue retval = {.type = JSON_ERROR};
     bool is_negative = false;
@@ -302,7 +302,7 @@ RSAPI RSJsonValue parseNumber(char *start, char *end, char **index){ //index doe
     return retval;
 }
 
-RSAPI RSJsonValue loadDataFromString(char input[]){
+RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
     RSJsonValue root = {.type = JSON_ERROR};
 
     if(input == NULL) return root;
@@ -383,7 +383,7 @@ RSAPI RSJsonValue loadDataFromString(char input[]){
 
             }
 
-            current = parseBoolean(index, &index);
+            current = RSon_parseBoolean(index, &index);
             goto save_node;
             break;
         case 'n':       //null
@@ -391,7 +391,7 @@ RSAPI RSJsonValue loadDataFromString(char input[]){
 
             }
 
-            current = parseNull(index, &index);
+            current = RSon_parseNull(index, &index);
             goto save_node;
             break;
         
@@ -402,13 +402,13 @@ RSAPI RSJsonValue loadDataFromString(char input[]){
 
             }
 
-            current = parseNumber(index, end, &index);
+            current = RSon_parseNumber(index, end, &index);
             goto save_node;
             break;
 
         default:
             if(expecting_node == true || last_parent.type == JSON_ERROR){
-                // freeAST(&root);
+                // RSon_freeAST(&root);
                 goto free_ast;
             }
             else if(c == ',' && (is_key || last_parent.type != JSON_OBJECT)){
@@ -420,7 +420,7 @@ RSAPI RSJsonValue loadDataFromString(char input[]){
                 expecting_node = true;
             }
             else{
-                // freeAST(&root);
+                // RSon_freeAST(&root);
                 goto free_ast;
             }
             break;
@@ -464,14 +464,14 @@ RSAPI RSJsonValue loadDataFromString(char input[]){
     free_ast:
     if(last_parent.type != JSON_ERROR) root = stack.values[0];
     else root = current;
-    freeAST(&root);
+    RSon_freeAST(&root);
     free(stack.values);
     return (RSJsonValue){.type = JSON_ERROR};
 
 }
 
 
-void RSon_printASTKeyValtype(RSJsonValue *node, int level){
+RSAPI void RSon_printASTKeyValtype(RSJsonValue *node, int level){
     for(int i = 0; i < level; i++){
         printf("  ");
     }
@@ -518,7 +518,7 @@ void RSon_printASTKeyValtype(RSJsonValue *node, int level){
     return;
 }
 
-void RSon_printASTtype(RSJsonValue *node, int level){
+RSAPI void RSon_printASTtype(RSJsonValue *node, int level){
     for(int i = 0; i < level; i++){
         printf("  ");
     }
