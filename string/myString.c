@@ -230,7 +230,7 @@ MSAPI int String_get(String *string, const ssize_t index, char *ret){
     return 0;
 }
 
-MSAPI inline char String_getUnsafe(String *string, const size_t index){
+MSAPI inline char String_getUnsafe(String *string, const ssize_t index){
     return string->text[index];
 }
 

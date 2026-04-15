@@ -5,7 +5,7 @@
     #ifdef BUILDING_DLL
         #define CSAPI __declspec(dllexport)
     #elif defined(USING_DLL)
-        #define CSONAPI __declspec(dllimport)
+        #define CSAPI __declspec(dllimport)
     #else
         #define CSAPI
     #endif
