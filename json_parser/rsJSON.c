@@ -68,7 +68,7 @@ static RSJsonValue createJSONObject(){
         .type = JSON_OBJECT,
         .data.object.size = 0,
         .data.object.capacity = cap,
-        .data.object.keys = (char**)malloc(sizeof(char*) * cap),
+        .data.object.keys = (RSStringView*)malloc(sizeof(RSStringView) * cap),
         .data.object.values = (RSJsonValue*)malloc(sizeof(RSJsonValue) * cap)
     };
     return retval;
@@ -88,10 +88,10 @@ static RSJsonValue createJSONOArray(){
 static void pushObjectKey(RSJsonValue *obj, RSJsonValue *val){
     if(obj->data.object.size >= obj->data.object.capacity){
         obj->data.object.capacity *= 2;
-        obj->data.object.keys = (char**)realloc(obj->data.object.keys, sizeof(char*) * obj->data.object.capacity);
+        obj->data.object.keys = (RSStringView*)realloc(obj->data.object.keys, sizeof(RSStringView) * obj->data.object.capacity);
         obj->data.object.values = (RSJsonValue*)realloc(obj->data.object.values, sizeof(RSJsonValue) * obj->data.object.capacity);
     }
-    obj->data.object.keys[obj->data.object.size] = val->data.string.start;
+    obj->data.object.keys[obj->data.object.size] = val->data.string;
     return;
 }
 
@@ -150,36 +150,39 @@ RSAPI void RSon_freeAST(RSJsonValue *root){
 
 
 
-RSAPI RSJsonValue RSon_parseNull(char *start, char **index){
+RSAPI RSJsonValue RSon_parseNull(RSJsonContext *context){
     RSJsonValue retval = {.type = JSON_ERROR};
-    
+    char *start = context->current;
     if((*start == 'n') && (*(start+1) == 'u') && (*(start+2) == 'l') && (*(start+3) == 'l')){
         retval.type = JSON_NULL;
-        *index += 4;
+        context->current += 4;
     }
 
     return retval;
 }
 
-RSAPI RSJsonValue RSon_parseBoolean(char *start, char **index){
+RSAPI RSJsonValue RSon_parseBoolean(RSJsonContext *context){
     RSJsonValue retval = {.type = JSON_ERROR};
+    char *start = context->current;
 
     if((*start == 't') && (*(start+1) == 'r') && (*(start+2) == 'u') && (*(start+3) == 'e')){
         retval.type = JSON_BOOLEAN;
         retval.data.boolean = true;
-        *index += 4;
+        context->current += 4;
     }
     else if((*start == 'f') && (*(start+1) == 'a') && (*(start+2) == 'l') && (*(start+3) == 's') && (*(start+4) == 'e')){
         retval.type = JSON_BOOLEAN;
         retval.data.boolean = false;
-        *index += 5;
+        context->current += 5;
     }
 
     return retval;
 }
 
-RSAPI RSJsonValue parseString(char *start, char *end, char **index){
-    RSStringView string = {.start = start, .end = NULL, .owned = false};
+RSAPI RSJsonValue parseString(RSJsonContext *context){
+    char *start = context->current;
+    char *end = context->end;
+    RSStringView string = {.start = start, .end = NULL};
     RSJsonValue retval = {.type = JSON_ERROR};
 
 
@@ -189,7 +192,7 @@ RSAPI RSJsonValue parseString(char *start, char *end, char **index){
             start++;
             break;
         case '\"':
-            *index = start + 1;
+            context->current = start + 1;
             string.end = start;
             retval.data.string = string;
             retval.type = JSON_STRING;
@@ -204,7 +207,8 @@ RSAPI RSJsonValue parseString(char *start, char *end, char **index){
     return retval;
 }
 
-RSAPI RSJsonValue RSon_parseNumber(char *start, char *end, char **index){ //index doesn't get updated and so there is an infinite loop
+RSAPI RSJsonValue RSon_parseNumber(RSJsonContext *context){
+    char *start = context->current;
     RSJsonNumber number = {.start = start, .end = NULL, .is_integer = true, .is_numeric = true};
     RSJsonValue retval = {.type = JSON_ERROR};
     bool is_negative = false;
@@ -272,27 +276,7 @@ RSAPI RSJsonValue RSon_parseNumber(char *start, char *end, char **index){ //inde
         }
     }
 
-
-    // while(start < end){
-    //     char c = *start;
-    //     if((c >= '0') && (c <= '9')){
-    //     }
-    //     else if(c == '.' && integer){
-    //         if(*(start + 1) >= '0' && *(start + 1) <= '9'){
-    //             return retval;
-    //         }
-    //         integer = false;
-    //     }
-    //     else {
-    //         number.end = start;
-    //         retval.type = JSON_NUMBER;
-    //         retval.data.number = number;
-    //         return retval;
-    //     }
-    //     start++;
-    // }
-
-    *index = start;
+    context->current = start;
 
     number.end = start;
     retval.data.number = number;
@@ -305,10 +289,12 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 
     if(input == NULL) return root;
 
+    
     RSJsonValue current = {.type = JSON_ERROR};
     char *end = input + strlen(input);
     char *index = input;
     char c;
+    RSJsonContext context = {.start = input, .end = end, .current = input};
     RSJsonValue last_parent = {.type = JSON_ERROR};
     bool is_key = false;
     bool expecting_node = true;
@@ -369,7 +355,9 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
         
         case '\"':      //string
             index++;
-            current = parseString(index, end, &index);
+            context.current = index;
+            current = parseString(&context);
+            index = context.current;
             goto save_node;
             break;
 
@@ -380,7 +368,9 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 
             }
 
-            current = RSon_parseBoolean(index, &index);
+            context.current = index;
+            current = RSon_parseBoolean(&context);
+            index = context.current;
             goto save_node;
             break;
         case 'n':       //null
@@ -388,7 +378,9 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 
             }
 
-            current = RSon_parseNull(index, &index);
+            context.current = index;
+            current = RSon_parseNull(&context);
+            index = context.current;
             goto save_node;
             break;
         
@@ -399,7 +391,9 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 
             }
 
-            current = RSon_parseNumber(index, end, &index);
+            context.current = index;
+            current = RSon_parseNumber(&context);
+            index = context.current;
             goto save_node;
             break;
 
@@ -613,7 +607,7 @@ RSAPI void RSon_printASTKeyValvalue(RSJsonValue *node, char *key_start, int leve
         case JSON_OBJECT:
             printf("{\n");
             for(int i = 0; i < node->data.object.size; i++){
-                RSon_printASTKeyValvalue(node->data.object.values + i, node->data.object.keys[i], level + 1);
+                RSon_printASTKeyValvalue(node->data.object.values + i, node->data.object.keys[i].start, level + 1);
             }
             for(int i = 0; i < level; i++){
                 printf("  ");
@@ -659,7 +653,7 @@ RSAPI void RSon_printASTvalue(RSJsonValue *node, int level){
         case JSON_OBJECT:
             printf("{\n");
             for(int i = 0; i < node->data.object.size; i++){
-                RSon_printASTKeyValvalue(node->data.object.values + i, node->data.object.keys[i], level + 1);
+                RSon_printASTKeyValvalue(node->data.object.values + i, node->data.object.keys[i].start, level + 1);
             }
             for(int i = 0; i < level; i++){
                 printf("  ");

@@ -3,6 +3,13 @@
 
 #include <stdbool.h>
 
+typedef struct{
+    char *start;
+    char *end;
+    char *current;
+}RSJsonContext;
+
+
 typedef enum{
     JSON_ERROR,
     JSON_BOOLEAN,
@@ -19,7 +26,6 @@ typedef enum{
 typedef struct RSStringView {
     char *start;
     char *end;
-    bool owned;
 }RSStringView;
 #endif
 
@@ -49,7 +55,7 @@ typedef struct RSJsonValue {
         struct {
             int size;
             int capacity;
-            char **keys;
+            RSStringView *keys;
             struct RSJsonValue *values;
         }object;
         
@@ -59,13 +65,13 @@ typedef struct RSJsonValue {
 
 void RSon_freeAST(RSJsonValue *root);
 
-RSJsonValue RSon_parseNull(char *start, char **index);
+RSJsonValue RSon_parseNull(RSJsonContext *context);
 
-RSJsonValue RSon_parseBoolean(char *start, char **index);
+RSJsonValue RSon_parseBoolean(RSJsonContext *context);
 
-RSJsonValue RSon_parseString(char *start, char *end, char **index);
+RSJsonValue RSon_parseString(RSJsonContext *context);
 
-RSJsonValue RSon_parseNumber(char *start, char *end, char **index);
+RSJsonValue RSon_parseNumber(RSJsonContext *context);
 
 RSJsonValue RSon_loadDataFromString(char input[]);
 
