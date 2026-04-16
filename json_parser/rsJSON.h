@@ -69,8 +69,11 @@ RSJsonValue RSon_parseNumber(char *start, char *end, char **index);
 
 RSJsonValue RSon_loadDataFromString(char input[]);
 
-void RSon_printASTKeyValtype(RSJsonValue *node, int level);
 
+void RSon_printASTKeyValtype(RSJsonValue *node, int level);
 void RSon_printASTtype(RSJsonValue *node, int level);
+
+void RSon_printASTKeyValvalue(RSJsonValue *node, char *key_start, int level);
+void RSon_printASTvalue(RSJsonValue *node, int level);
 
 #endif

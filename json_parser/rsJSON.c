@@ -38,8 +38,6 @@ static void stackPush(struct stack *stack, RSJsonValue value){
         stack->capacity *= 2;
         stack->values = (RSJsonValue*)realloc(stack->values, sizeof(RSJsonValue) * stack->capacity);
     }
-    // memcpy(stack->values + (sizeof(RSJsonValue) * stack->size), &value, sizeof(RSJsonValue));
-    // stack->size++;
     stack->values[stack->size++] = value;
 }
 
@@ -315,7 +313,6 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
     bool is_key = false;
     bool expecting_node = true;
     
-    // RSJsonValue *stack = (RSJsonValue*)malloc(sizeof(RSJsonValue) * 10);
     struct stack stack = createStack(10);
     
 
@@ -471,6 +468,9 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 }
 
 
+
+
+
 RSAPI void RSon_printASTKeyValtype(RSJsonValue *node, int level){
     for(int i = 0; i < level; i++){
         printf("  ");
@@ -505,7 +505,6 @@ RSAPI void RSon_printASTKeyValtype(RSJsonValue *node, int level){
         case JSON_OBJECT:
             printf("type = JSON_OBJECT{\n");
             for(int i = 0; i < node->data.object.size; i++){
-                // printf("type = JSON_STRING : ");
                 RSon_printASTKeyValtype(node->data.object.values + i, level + 1);
             }
             for(int i = 0; i < level; i++){
@@ -551,8 +550,116 @@ RSAPI void RSon_printASTtype(RSJsonValue *node, int level){
         case JSON_OBJECT:
             printf("type = JSON_OBJECT{\n");
             for(int i = 0; i < node->data.object.size; i++){
-                // printf("type = JSON_STRING : ");
                 RSon_printASTKeyValtype(node->data.object.values + i, level + 1);
+            }
+            for(int i = 0; i < level; i++){
+                printf("  ");
+            }
+            printf("}");
+            break;
+    }
+    printf("\n");
+    return;
+}
+
+
+static void printLengthBasedString(char *start, char *end){
+    if(end == NULL){
+        while(*start != '\"' && *start){
+            putc(*start, stdout);
+            start++;
+        }
+    }
+    else{
+        while(start < end){
+            putc(*start, stdout);
+            start++;
+        }
+    }
+}
+
+RSAPI void RSon_printASTKeyValvalue(RSJsonValue *node, char *key_start, int level){
+    for(int i = 0; i < level; i++){
+        printf("  ");
+    }
+    printLengthBasedString(key_start, NULL);
+    printf(" : ");
+    switch(node->type){
+        case JSON_ERROR:
+            printf("JSON_ERROR");
+            break;
+        case JSON_BOOLEAN:
+            printf("type = JSON_BOOLEAN");
+            break;
+        case JSON_NULL:
+            printf("type = null");
+            break;
+        case JSON_NUMBER:
+            printLengthBasedString(node->data.number.start, node->data.number.end);
+            break;
+        case JSON_STRING:
+            printLengthBasedString(node->data.string.start, node->data.string.end);
+            break;
+        case JSON_ARRAY:
+            printf("type = JSON_ARRAY[\n");
+            for(int i = 0; i < node->data.array.size; i++){
+                RSon_printASTvalue(node->data.array.elements + i, level + 1);
+            }
+            for(int i = 0; i < level; i++){
+                printf("  ");
+            }
+            printf("]");
+            break;
+        case JSON_OBJECT:
+            printf("{\n");
+            for(int i = 0; i < node->data.object.size; i++){
+                RSon_printASTKeyValvalue(node->data.object.values + i, node->data.object.keys[i], level + 1);
+            }
+            for(int i = 0; i < level; i++){
+                printf("  ");
+            }
+            printf("}");
+            break;
+    }
+    printf("\n");
+    return;
+}
+
+RSAPI void RSon_printASTvalue(RSJsonValue *node, int level){
+    for(int i = 0; i < level; i++){
+        printf("  ");
+    }
+    switch(node->type){
+        case JSON_ERROR:
+            printf("JSON_ERROR");
+            break;
+        case JSON_BOOLEAN:
+            if(node->data.boolean) printf("true");
+            else printf("false");
+            break;
+        case JSON_NULL:
+            printf("null");
+            break;
+        case JSON_NUMBER:
+            printLengthBasedString(node->data.number.start, node->data.number.end);
+            break;
+        case JSON_STRING:
+            printLengthBasedString(node->data.string.start, node->data.string.end);
+            break;
+        case JSON_ARRAY:
+            printf("[\n");
+            for(int i = 0; i < node->data.array.size; i++){
+                RSon_printASTvalue(node->data.array.elements + i, level + 1);
+            }
+            for(int i = 0; i < level; i++){
+                printf("  ");
+            }
+            printf("]");
+            break;
+        case JSON_OBJECT:
+            printf("{\n");
+            for(int i = 0; i < node->data.object.size; i++){
+                RSon_printASTKeyValvalue(node->data.object.values + i, node->data.object.keys[i], level + 1);
             }
             for(int i = 0; i < level; i++){
                 printf("  ");
