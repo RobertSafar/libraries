@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "rsJSON.h"
 
@@ -462,7 +463,170 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 }
 
 
+RSAPI RSJsonValue *RSon_getPath(RSJsonValue *root, char *path){
+    if(!root) return NULL;
 
+    RSJsonValue *node = root;
+
+    int length = 0;
+    int index = 0;
+    while(path[length] != '\0') length++;
+    
+    char character;
+    int json_arr_index = 0;
+
+    while(index < length){
+        character = path[index];
+        switch (character){
+        case '[':
+            if(node->type != JSON_ARRAY){
+                printf("data type is not a Json array\n");
+                return NULL;
+            }
+            index++;
+            if(path[index] > '9' || path[index] < '0'){
+                printf("incorrect Json array index\n");
+                return NULL;
+            }
+            json_arr_index = 0;
+            break;
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            do{
+                json_arr_index = json_arr_index * 10 + character - '0';
+                index++;
+                character = path[index];
+            }while(character <= '9' && character >= '0');
+            if(character != ']') {
+                printf("incorrect Json array index\n");
+                return NULL;
+            }
+            break;
+        case ']':
+            if(json_arr_index >= node->data.array.size){
+                printf("incorrect array index - out of bounds\n");
+                return NULL;
+            }
+            node = node->data.array.elements + json_arr_index;
+            index++;
+            if(path[index] != '.' && path[index] != '\0'){
+                printf("incorrect path\n");
+                return NULL;
+            }
+            break;
+        case '.':
+            index++;
+            if(path[index] == '['){
+                break;
+            }
+
+        default:
+            if(node->type != JSON_OBJECT){
+                printf("incorrect path, node is not an object\n");
+                return NULL;
+            }
+
+            int start = index;
+            while(index < length){
+                character = path[index];
+                if(character == '.'){
+                    break;
+                }
+                index++;
+            }
+            // if(character == '['){
+            //     break;
+            // }
+
+
+            // char temp = path[index];
+            // path[index] = '\0';
+            for(size_t i = 0; i < node->data.object.size; i++){
+                RSJsonValue *kp;
+                kp = node->data.object.values + i;
+                char *t = (node->data.object.keys + i)->start;
+                char *e = (node->data.object.keys + i)->end;
+                for(int i = start; i < index; i++){
+                    if(*t == '\0' || path[i] != *t){
+                        goto get_next_key;   
+                    }
+                    t++;
+                }
+                // if(*t == '\0'){
+                if(*t == '\0' || *t == '\"'){
+                    node = kp;
+                    goto key_found;
+                }
+                // if (strcmp((path + start), kp->key.text) == 0){
+                //     node = &kp->value;
+                //     goto key_found;
+                // }
+                get_next_key:
+            }
+
+            printf("incorrect path : \"%s\" key not found\n", path + start);
+            return NULL;
+            key_found:
+            break;
+        }
+    }
+    return node;
+}
+
+RSAPI RSJsonValue *RSon_get(RSJsonValue *root, ...){
+    if(!root) return NULL;
+
+    va_list args;
+    va_start(args, root);
+
+    RSonPath path;
+    while(1){
+        path = va_arg(args, RSonPath);
+        switch(path.type){
+            case RSON_PATH_INDEX:
+                if(root->type != JSON_ARRAY) {
+                    return NULL;
+                }
+
+                if(root->data.array.size <= path.index) {
+                    return NULL;
+                }
+                root = root->data.array.elements + path.index;
+                break;
+            case RSON_PATH_KEY:
+                if(root->type != JSON_OBJECT || path.key == NULL) {
+                    return NULL;
+                }
+
+                int length = strlen(path.key);
+                bool found_match = false;
+                for(int i = 0; i < root->data.object.size; i++){
+                    int key_length = (root->data.object.keys + i)->end - (root->data.object.keys + i)->start;
+                    if(length != key_length) continue;
+                    char *key = (root->data.object.keys + i)->start;
+                    int j;
+                    for(j = 0; j < length; j++){
+                        if(*key != path.key[j]){
+                            break;
+                        }
+                        key++;
+                    }
+                    if(j == length){
+                        root = root->data.object.values + i;
+                        found_match = true;
+                        break;
+                    }
+                }
+                if(!found_match) return NULL;
+                break;
+            case RSON_PATH_END:
+                return root;
+            default:
+                break;
+        }
+    }
+
+    return root;
+}
 
 
 RSAPI void RSon_printASTKeyValtype(RSJsonValue *node, int level){
@@ -664,3 +828,44 @@ RSAPI void RSon_printASTvalue(RSJsonValue *node, int level){
     printf("\n");
     return;
 }
+
+
+
+RSAPI void RSon_printNode(RSJsonValue *node){
+    if(!node) return;
+    switch(node->type){
+        case JSON_ERROR:
+            printf("JSON_ERROR\n");
+            break;
+        case JSON_BOOLEAN:
+            if(node->data.boolean) printf("true\n");
+            else printf("false\n");
+            break;
+        case JSON_NULL:
+            printf("null\n");
+            break;
+        case JSON_NUMBER:
+            char *e = node->data.number.end;
+            for(char *s = node->data.number.start; s < node->data.number.end; s++){
+                putc(*s, stdout);
+            }
+            putc('\n', stdout);
+            break;
+        case JSON_STRING:
+            for(char *s = node->data.string.start; s < node->data.string.end; s++){
+                putc(*s, stdout);
+            }
+            putc('\n', stdout);
+            break;
+        case JSON_ARRAY:
+            printf("JSON_ARRAY\n");
+            break;
+        case JSON_OBJECT:
+            printf("JSON_OBJECT\n");
+            break;
+        default:
+            break;
+    }
+    return;
+}
+

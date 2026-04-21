@@ -63,6 +63,26 @@ typedef struct RSJsonValue {
 }RSJsonValue;
 
 
+
+typedef enum{
+    RSON_PATH_INDEX,
+    RSON_PATH_KEY,
+    RSON_PATH_END
+}RSJsonPathType;
+
+
+typedef struct RSonPath{
+    RSJsonPathType type;
+    union{
+        char* key;
+        size_t index;
+    };
+}RSonPath;
+
+#define RSON_INDEX(i) ((RSonPath){.type = RSON_PATH_INDEX, .index = (i)})
+#define RSON_KEY(k) ((RSonPath){.type = RSON_PATH_KEY, .key = (k)})
+#define RSON_END ((RSonPath){.type = RSON_PATH_END})
+
 void RSon_freeAST(RSJsonValue *root);
 
 RSJsonValue RSon_parseNull(RSJsonContext *context);
@@ -75,11 +95,15 @@ RSJsonValue RSon_parseNumber(RSJsonContext *context);
 
 RSJsonValue RSon_loadDataFromString(char input[]);
 
+RSJsonValue *RSon_getPath(RSJsonValue *root, char *path);
+RSJsonValue *RSon_get(RSJsonValue *root, ...);
 
 void RSon_printASTKeyValtype(RSJsonValue *node, int level);
 void RSon_printASTtype(RSJsonValue *node, int level);
 
 void RSon_printASTKeyValvalue(RSJsonValue *node, char *key_start, int level);
 void RSon_printASTvalue(RSJsonValue *node, int level);
+
+void RSon_printNode(RSJsonValue *node);
 
 #endif
