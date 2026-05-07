@@ -121,6 +121,23 @@ VAPI void Vector_push(Vector *vector, const void *value){
     return;
 }
 
+VAPI void Vector_pushArray(Vector *vector, const void *value, ssize_t amount){
+    if(!vector || !vector->element_size || amount <= 0) return;
+
+    if(!vector->data){
+        *vector = Vector_create(vector->element_size);
+    }
+
+    else if(vector->size + amount > vector->capacity){
+        vector->capacity *= 2;
+        vector->capacity = vector->capacity > (vector->size + amount) ? vector->capacity : (vector->size + amount + 10);
+        vector->data = realloc(vector->data, (vector->capacity * vector->element_size));
+    }
+    memcpy((char*)vector->data + (vector->size * vector->element_size), value, vector->element_size * amount);
+    vector->size++;
+    return;
+}
+
 VAPI int Vector_pop(Vector *vector, void *ret){
     if(!vector || !vector->data) return 0;
 

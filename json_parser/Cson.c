@@ -442,6 +442,7 @@ CSAPI JsonParserValue Cson_parseObject(String *data, size_t *start){
     ret_val.val.object = CVECTOR_EMPTY(JsonKeyValuePair, NULL, NULL);
     JsonKeyValuePair keyVal_pair;
     char character;
+    String_get(data, index, &character);
     if(character == '}'){
         return ret_val;
     }

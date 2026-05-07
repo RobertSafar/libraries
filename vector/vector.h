@@ -49,6 +49,8 @@ void Vector_destroy(Vector *vector);
 
 //add an element to the end of a vector
 void Vector_push(Vector *vector, const void *value);
+//copy an array of elements to the end of the vector
+void Vector_pushArray(Vector *vector, const void *value, ssize_t amount);
 //get the last element of a vector and return it in the "ret" variable. Removes the last element
 int Vector_pop(Vector *vector, void *ret);
 //insert an element anywhere inside a vecter, if inserting outside the used memory 

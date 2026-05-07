@@ -81,6 +81,13 @@ MSAPI void String_destroy(String *string){
     return;
 }
 
+MSAPI char *String_detach(String *string){
+    char *retval = string->text;
+    string->size = 0;
+    string->capacity = 0;
+    string->text = NULL;
+    return retval;
+}
 
 
 MSAPI void String_assign(String *string, const char *text){
@@ -161,6 +168,20 @@ MSAPI void String_append(String *string, const char *text){
     }
     memcpy(string->text + string->size, text, (sizeof(char) * len));
     string->size += len;
+    string->text[string->size] = '\0';
+    return;
+}
+
+MSAPI void String_appendLength(String *string, const char *text, ssize_t length){
+    if(!string || length <= 0) return;
+
+    
+    if(string->size + length >= string->capacity){
+        string->capacity = string->size + length + 1 + SIZE_RESERVE;
+        string->text = realloc(string->text, string->capacity);
+    }
+    memcpy(string->text + string->size, text, (sizeof(char) * length));
+    string->size += length;
     string->text[string->size] = '\0';
     return;
 }
@@ -284,6 +305,12 @@ MSAPI void String_copy(String *dest, String *src){
     dest->text = malloc(src->capacity * sizeof(char));
     memcpy(dest->text, src->text, sizeof(char) * dest->size);
     dest->text[dest->size] = '\0';
+    return;
+}
+
+MSAPI void String_copyShallow(String *dest, String *src){
+    if(!dest || !src) return;
+    memcpy(dest, src, sizeof(String));
     return;
 }
 
@@ -453,6 +480,29 @@ void String_removeCharacterSet(String *string, String *characters){
     bool look_up[256] = {false};
     for(size_t i = 0; i < characters->size; i++){
         unsigned char c = characters->text[i];
+        look_up[c] = true;
+    }
+
+    size_t write_index = 0;
+    for(size_t i = write_index; i < string->size; i++){
+        unsigned char c = string->text[i];
+        if(!look_up[c]){
+            string->text[write_index] = string->text[i];
+            write_index++;
+            continue;
+        }
+    }
+    string->size = write_index;
+    string->text[write_index] = '\0';
+}
+
+void String_removeCharacterSetC(String *string, char *characters){
+    if(!string || !characters || !string->size) return;
+
+    bool look_up[256] = {false};
+    size_t size = strlen(characters);
+    for(size_t i = 0; i < size; i++){
+        unsigned char c = characters[i];
         look_up[c] = true;
     }
 

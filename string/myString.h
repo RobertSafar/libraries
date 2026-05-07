@@ -35,10 +35,6 @@ String String_create();
 //create a String with a desired amount of elemnts
 String String_createCapacity(ssize_t capacity);
 
-/*
-//create a String with a desired amount of elements and set it to be full
-String String_createSize(size_t size);
-*/
 
 //create a String with a desired amount of elements and fill it up with a value
 String String_createSizeSet(ssize_t size, char value);
@@ -46,6 +42,8 @@ String String_createSizeSet(ssize_t size, char value);
 String String_createAssign(char *text);
 //free the String. If the elements also use dynamic memory, they don't get freed -> memory leaks
 void String_destroy(String *string);
+//destroy the string without freeing the dynamic memory. Pointer to this memory is returnd.
+char *String_detach(String *string);
 
 
 //copy some text into the String
@@ -58,10 +56,11 @@ void String_assignString(String *string, String *src);
 void String_appendChar(String *string, const char value);
 //append text to the end of a String
 void String_append(String *string, const char *text);
-/*
-//get the last element of a String and return it in the "ret" variable. Removes the last element
-void String_pop(String *string, char *ret);
-*/
+//append text to the end of a String. The number of character copied is specified in "length" variable
+//this allows us to copy part of a text if we only want a part of it.
+//It also allows us to copy binary data, which may contain several '\0' characters, into a String
+void String_appendLength(String *string, const char *text, ssize_t length);
+
 //insert a text anywhere inside the string, if inserting outside the used memory 
 //(i.e. String has 10 elements and we are inserting to position 15) nothing is done
 void String_insert(String *string, const ssize_t index, const char *text);
@@ -84,6 +83,8 @@ String String_copyReturn(String *src);
 //copies the String "src" into the String "dest". If String dest is not empty, the pointer to this memory is lost.
 //dest MUST be freed before calling to copy function
 void String_copy(String *dest, String *src);
+//copy the "src" String into "dest" String verbatim. The pointer to the text is also copied which means that both Strings point to the same piece of memory. BE CAREFUL! 
+void String_copyShallow(String *dest, String *src);
 
 
 //get the capacity of a String
@@ -112,12 +113,15 @@ void String_stripWhiteSpaces(String *string);
 void String_removeCharacter(String *string, char character);
 //remove all letters that can be found in the "characters" String from "string"
 void String_removeCharacterSet(String *string, String *characters);
+//remove all letters that can be found in the "characters" C string from "string"
+void String_removeCharacterSetC(String *string, char *characters);
 //check if a string ends with a certain suffix
 bool String_endsWith(String *string, const char *suffix);
 
 
-//sort the String according to the supplied compare function
+//print the string to STDOUT
 void String_print(const String *string);
+//print the string to STDOUT and follow it with a newlinew character
 void String_println(const String *string);
 
 #endif
