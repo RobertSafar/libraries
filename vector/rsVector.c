@@ -7,7 +7,7 @@
 
 // #ifndef VECTOR_C
 // #define VECTOR_C
-#include "vector.h"
+#include "rsVector.h"
 
 #ifdef _WIN32
     #ifdef BUILDING_DLL
@@ -23,8 +23,8 @@
 
 
 
-VAPI Vector Vector_create(int element_size){
-    Vector vector;
+VAPI RSVec RSvec_create(int element_size){
+    RSVec vector;
     vector.size = 0;
     vector.capacity = 10;
     vector.element_size = element_size;
@@ -33,11 +33,11 @@ VAPI Vector Vector_create(int element_size){
     return vector;
 }
 
-VAPI Vector Vector_createCapacity(ssize_t capacity, int element_size){
+VAPI RSVec RSvec_createCapacity(ssize_t capacity, int element_size){
     if (capacity < 0) return _VECTOR_EMPTY(element_size);
 
     size_t cap = (size_t) capacity;
-    Vector vector;
+    RSVec vector;
     vector.size = 0;
     vector.capacity = cap;
     vector.element_size = element_size;
@@ -45,11 +45,11 @@ VAPI Vector Vector_createCapacity(ssize_t capacity, int element_size){
     return vector;
 }
 
-VAPI Vector Vector_createSize(ssize_t size, int element_size){
+VAPI RSVec RSvec_createSize(ssize_t size, int element_size){
     if (size < 0) return _VECTOR_EMPTY(element_size);
 
     size_t sz = (size_t) size;
-    Vector vector;
+    RSVec vector;
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
@@ -58,11 +58,11 @@ VAPI Vector Vector_createSize(ssize_t size, int element_size){
     return vector;
 }
 
-VAPI Vector Vector_createSizeSet(ssize_t size, void *value, int element_size){
+VAPI RSVec RSvec_createSizeSet(ssize_t size, void *value, int element_size){
     if (size < 0) return _VECTOR_EMPTY(element_size);
 
     size_t sz = (size_t) size;
-    Vector vector;
+    RSVec vector;
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
@@ -73,7 +73,7 @@ VAPI Vector Vector_createSizeSet(ssize_t size, void *value, int element_size){
     return vector;
 }
 
-VAPI Vector Vector_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size){    
+VAPI RSVec RSvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size){    
     if (capacity < 0) return _VECTOR_EMPTY(element_size);
     else if (capacity < size) size = capacity;
     else if (size < 0) size = 0;
@@ -81,7 +81,7 @@ VAPI Vector Vector_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *v
     size_t cap = (size_t) capacity;
     size_t sz = (size_t) size;
     
-    Vector vector;
+    RSVec vector;
     vector.size = sz;
     vector.capacity = cap >= sz ? cap : sz;
     vector.element_size = element_size;
@@ -92,7 +92,7 @@ VAPI Vector Vector_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *v
     return vector;
 }
 
-VAPI void Vector_destroy(Vector *vector){
+VAPI void RSvec_destroy(RSVec *vector){
     if(!vector || !vector->data) return;
 
     free(vector->data);
@@ -105,11 +105,11 @@ VAPI void Vector_destroy(Vector *vector){
 
 
 
-VAPI void Vector_push(Vector *vector, const void *value){
+VAPI void RSvec_push(RSVec *vector, const void *value){
     if(!vector || !vector->element_size) return;
 
     if(!vector->data){
-        *vector = Vector_create(vector->element_size);
+        *vector = RSvec_create(vector->element_size);
     }
 
     else if(vector->size >= vector->capacity){
@@ -121,11 +121,11 @@ VAPI void Vector_push(Vector *vector, const void *value){
     return;
 }
 
-VAPI void Vector_pushArray(Vector *vector, const void *value, ssize_t amount){
+VAPI void RSvec_pushArray(RSVec *vector, const void *value, ssize_t amount){
     if(!vector || !vector->element_size || amount <= 0) return;
 
     if(!vector->data){
-        *vector = Vector_create(vector->element_size);
+        *vector = RSvec_create(vector->element_size);
     }
 
     else if(vector->size + amount > vector->capacity){
@@ -138,7 +138,7 @@ VAPI void Vector_pushArray(Vector *vector, const void *value, ssize_t amount){
     return;
 }
 
-VAPI int Vector_pop(Vector *vector, void *ret){
+VAPI int RSvec_pop(RSVec *vector, void *ret){
     if(!vector || !vector->data) return 0;
 
     if(vector->size == 0){
@@ -152,7 +152,7 @@ VAPI int Vector_pop(Vector *vector, void *ret){
     return 1;
 }
 
-VAPI void Vector_insert(Vector *vector, const ssize_t index, const void *value){
+VAPI void RSvec_insert(RSVec *vector, const ssize_t index, const void *value){
     if(!vector || !vector->element_size || index < 0) return;
     
     size_t idx = (size_t) index;
@@ -161,15 +161,15 @@ VAPI void Vector_insert(Vector *vector, const ssize_t index, const void *value){
         return;
     }
     else if(idx == vector->size){
-        Vector_push(vector, value);
+        RSvec_push(vector, value);
         return;
     }
-    Vector_shiftRightFrom(vector, idx);
+    RSvec_shiftRightFrom(vector, idx);
     memcpy((char*)vector->data + (idx * vector->element_size), value, vector->element_size);
     return;
 }
 
-VAPI void Vector_set(Vector *vector, const ssize_t index, const void *value){
+VAPI void RSvec_set(RSVec *vector, const ssize_t index, const void *value){
     if(!vector || !vector->data) return;
     
     size_t idx = (size_t) index;
@@ -180,7 +180,7 @@ VAPI void Vector_set(Vector *vector, const ssize_t index, const void *value){
     return;
 }
 
-VAPI int Vector_get(Vector *vector, const ssize_t index, void *ret){
+VAPI int RSvec_get(RSVec *vector, const ssize_t index, void *ret){
     if(!vector || !vector->data) return 0;
     
     size_t idx = (size_t) index;
@@ -191,7 +191,7 @@ VAPI int Vector_get(Vector *vector, const ssize_t index, void *ret){
     return 1;
 }
 
-void *Vector_getPointer(Vector *vector, const ssize_t index){
+void *RSvec_getPointer(RSVec *vector, const ssize_t index){
     if(!vector || !vector->data) return NULL;
     
     size_t idx = (size_t) index;
@@ -201,19 +201,19 @@ void *Vector_getPointer(Vector *vector, const ssize_t index){
     return (char*)vector->data + (index * vector->element_size);
 }
 
-VAPI void Vector_clear(Vector *vector){
+VAPI void RSvec_clear(RSVec *vector){
     if(!vector || !vector->data) return;
     
     vector->size = 0;
     return;
 }
 
-VAPI void Vector_resize(Vector *vector, ssize_t capacity){
+VAPI void RSvec_resize(RSVec *vector, ssize_t capacity){
     if(!vector || capacity < 0 || !vector->element_size) return;
 
     size_t cap = (size_t) capacity;
     if(!vector->data){
-        *vector = Vector_createCapacity(cap, vector->element_size);
+        *vector = RSvec_createCapacity(cap, vector->element_size);
         return;
     }
 
@@ -225,10 +225,10 @@ VAPI void Vector_resize(Vector *vector, ssize_t capacity){
 }
 
 
-VAPI Vector Vector_copyReturn(Vector *src){
+VAPI RSVec RSvec_copyReturn(RSVec *src){
     if(!src) return VECTOR_NULL();
 
-    Vector vector;
+    RSVec vector;
     vector.size = src->size;
     vector.capacity = src->capacity;
     vector.element_size = src->element_size;
@@ -237,7 +237,7 @@ VAPI Vector Vector_copyReturn(Vector *src){
     return vector;
 }
 
-VAPI void Vector_copy(Vector *dest, Vector *src){
+VAPI void RSvec_copy(RSVec *dest, RSVec *src){
     if(!dest || !src) return;
 
     // if(dest->data != NULL){
@@ -253,24 +253,24 @@ VAPI void Vector_copy(Vector *dest, Vector *src){
 
 
 
-VAPI size_t Vector_getCapacity(Vector *vector){
+VAPI size_t RSvec_getCapacity(RSVec *vector){
     if(vector) return vector->capacity;
     return 0;
 }
 
-VAPI size_t Vector_getSize(Vector *vector){
+VAPI size_t RSvec_getSize(RSVec *vector){
     if(vector) return vector->size;
     return 0;
 }
 
-VAPI int Vector_getSizeOfElements(Vector *vector){
+VAPI int RSvec_getSizeOfElements(RSVec *vector){
     if(vector) return vector->element_size;
     return 0;
 }
 
 
 
-VAPI void Vector_shiftRightFrom(Vector *vector, const ssize_t index){
+VAPI void RSvec_shiftRightFrom(RSVec *vector, const ssize_t index){
     if(!vector || !vector->size) return;
 
     size_t idx = (size_t) index;
@@ -289,7 +289,7 @@ VAPI void Vector_shiftRightFrom(Vector *vector, const ssize_t index){
     return;
 }
 
-VAPI void Vector_shiftLeftFrom(Vector *vector, const ssize_t index){
+VAPI void RSvec_shiftLeftFrom(RSVec *vector, const ssize_t index){
     if(!vector || !vector->size) return;
     
     size_t idx = (size_t) index;
@@ -304,7 +304,7 @@ VAPI void Vector_shiftLeftFrom(Vector *vector, const ssize_t index){
     return;
 }
 
-VAPI void Vector_shiftRightFromBy(Vector *vector, const ssize_t index, ssize_t amount){
+VAPI void RSvec_shiftRightFromBy(RSVec *vector, const ssize_t index, ssize_t amount){
     if(!vector || amount <= 0 || !vector->size) return;
 
     size_t amt = (size_t) amount;
@@ -324,7 +324,7 @@ VAPI void Vector_shiftRightFromBy(Vector *vector, const ssize_t index, ssize_t a
     return;
 }
 
-VAPI void Vector_shiftLeftFromBy(Vector *vector, const ssize_t index, ssize_t amount){
+VAPI void RSvec_shiftLeftFromBy(RSVec *vector, const ssize_t index, ssize_t amount){
     if(!vector || amount <= 0 || !vector->size) return;
     
     size_t amt = (size_t) amount;
@@ -343,10 +343,10 @@ VAPI void Vector_shiftLeftFromBy(Vector *vector, const ssize_t index, ssize_t am
 
 
 
-VAPI void Vector_sort(const Vector *vector, const int (*Vector_compare)(const void *a, const void *b)){
+VAPI void RSvec_sort(const RSVec *vector, const int (*RSvec_compare)(const void *a, const void *b)){
     if(!vector || !vector->size) return;
 
-    qsort(vector->data, vector->size, vector->element_size, Vector_compare);
+    qsort(vector->data, vector->size, vector->element_size, RSvec_compare);
     return;
 }
 
@@ -356,8 +356,8 @@ VAPI void Vector_sort(const Vector *vector, const int (*Vector_compare)(const vo
 
 
 
-VAPI CVector CVector_create(int element_size, CVdestroy_func destroy, CVcopy_func copy){
-    CVector vector;
+VAPI RSManagedVec RSmvec_create(int element_size, CVdestroy_func destroy, CVcopy_func copy){
+    RSManagedVec vector;
     vector.size = 0;
     vector.capacity = 10;
     vector.element_size = element_size;
@@ -369,8 +369,8 @@ VAPI CVector CVector_create(int element_size, CVdestroy_func destroy, CVcopy_fun
     return vector;
 }
 
-VAPI CVector CVector_createDefault1D(int element_size){
-    CVector vector;
+VAPI RSManagedVec RSmvec_createDefault1D(int element_size){
+    RSManagedVec vector;
     vector.size = 0;
     vector.capacity = 10;
     vector.element_size = element_size;
@@ -382,70 +382,70 @@ VAPI CVector CVector_createDefault1D(int element_size){
     return vector;
 }
 
-VAPI CVector CVector_createDefault2D(int element_size){
-    CVector vector;
+VAPI RSManagedVec RSmvec_createDefault2D(int element_size){
+    RSManagedVec vector;
     vector.size = 0;
     vector.capacity = 10;
     vector.element_size = element_size;
     vector.data = malloc(element_size * vector.capacity);
 
-    vector.destroy = Vector_destroy_wrapper;
-    vector.copy = Vector_copy_wrapper;
+    vector.destroy = RSvec_destroy_wrapper;
+    vector.copy = RSvec_copy_wrapper;
     memset(vector.data, 0, (vector.capacity * vector.element_size));
     return vector;
 }
 
-VAPI CVector CVector_createCapacity(ssize_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     if(capacity <= 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
 
     size_t cap = (size_t) capacity;
-    CVector vector;
+    RSManagedVec vector;
     vector.size = 0;
     vector.capacity = cap;
     vector.element_size = element_size;
     vector.data = malloc(vector.element_size * vector.capacity);
 
-    vector.destroy = Vector_destroy_wrapper;
-    vector.copy = Vector_copy_wrapper;
+    vector.destroy = RSvec_destroy_wrapper;
+    vector.copy = RSvec_copy_wrapper;
     memset(vector.data, 0, (vector.capacity * vector.element_size));
     return vector;
 }
 
-VAPI CVector CVector_createSize(ssize_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI RSManagedVec RSmvec_createSize(ssize_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     if (size < 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
     
     size_t sz = (size_t) size;
-    CVector vector;
+    RSManagedVec vector;
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
     vector.data = malloc(vector.element_size * vector.capacity);
 
-    vector.destroy = Vector_destroy_wrapper;
-    vector.copy = Vector_copy_wrapper;
+    vector.destroy = RSvec_destroy_wrapper;
+    vector.copy = RSvec_copy_wrapper;
     memset(vector.data, 0, (vector.capacity * vector.element_size));
     return vector;
 }
 
-VAPI CVector CVector_createSizeSet(ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     if (size < 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
 
     size_t sz = (size_t) size;
-    CVector vector;
+    RSManagedVec vector;
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
     vector.data = malloc(element_size * vector.capacity);
 
-    vector.destroy = Vector_destroy_wrapper;
-    vector.copy = Vector_copy_wrapper;
+    vector.destroy = RSvec_destroy_wrapper;
+    vector.copy = RSvec_copy_wrapper;
     for(size_t i=0; i<sz; i++){
         memcpy((char*)vector.data + (i * vector.element_size), value, vector.element_size);
     }
     return vector;
 }
 
-VAPI CVector CVector_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+VAPI RSManagedVec RSmvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
     if (capacity < 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
     else if (capacity < size) size = capacity;
     else if(size < 0) size = 0;
@@ -453,21 +453,21 @@ VAPI CVector CVector_createCapacitySizeSet(ssize_t capacity, ssize_t size, void 
     size_t cap = (size_t) capacity;
     size_t sz = (size_t) size;
 
-    CVector vector;
+    RSManagedVec vector;
     vector.size = sz;
     vector.capacity = cap >= sz ? cap : sz;
     vector.element_size = element_size;
     vector.data = malloc(element_size * vector.capacity);
 
-    vector.destroy = Vector_destroy_wrapper;
-    vector.copy = Vector_copy_wrapper;
+    vector.destroy = RSvec_destroy_wrapper;
+    vector.copy = RSvec_copy_wrapper;
     for(size_t i=0; i<sz; i++){
         memcpy((char*)vector.data + (i * vector.element_size), value, vector.element_size);
     }
     return vector;
 }
 
-VAPI void CVector_destroy(CVector *vector){
+VAPI void RSmvec_destroy(RSManagedVec *vector){
     if(!vector || !vector->data) return;
     if(vector->destroy == NULL){
         goto free_top;
@@ -486,18 +486,18 @@ VAPI void CVector_destroy(CVector *vector){
     return;
 }
 
-VAPI void Vector_destroy_wrapper(void *element){
-    Vector_destroy((Vector*)element);
+VAPI void RSvec_destroy_wrapper(void *element){
+    RSvec_destroy((RSVec*)element);
     return;
 }
 
 
 
-VAPI void CVector_push(CVector *vector, const void *value){
+VAPI void RSmvec_push(RSManagedVec *vector, const void *value){
     if(!vector || !vector->element_size || !value) return;
 
     if(!vector->data){
-        *vector = CVector_create(vector->element_size, vector->destroy, vector->copy);
+        *vector = RSmvec_create(vector->element_size, vector->destroy, vector->copy);
     }
 
     if(vector->size >= vector->capacity){
@@ -512,7 +512,7 @@ VAPI void CVector_push(CVector *vector, const void *value){
     return;
 }
 
-VAPI int CVector_pop(CVector *vector, void *ret){
+VAPI int RSmvec_pop(RSManagedVec *vector, void *ret){
     if(!vector || !vector->data) return 0;
 
     if(vector->size == 0){
@@ -530,7 +530,7 @@ VAPI int CVector_pop(CVector *vector, void *ret){
 }
 
 
-VAPI void CVector_insert(CVector *vector, const ssize_t index, const void *value){
+VAPI void RSmvec_insert(RSManagedVec *vector, const ssize_t index, const void *value){
     if(!vector || !vector->element_size || index < 0) return;
 
     size_t idx = (size_t) index;
@@ -539,10 +539,10 @@ VAPI void CVector_insert(CVector *vector, const ssize_t index, const void *value
         return;
     }
     else if(idx == vector->size){
-        CVector_push(vector, value);
+        RSmvec_push(vector, value);
         return;
     }
-    CVector_shiftRightFrom(vector, idx);
+    RSmvec_shiftRightFrom(vector, idx);
 
     if(vector->copy) vector->copy((char*)vector->data + (idx * vector->element_size), value);
     else memcpy((char*)vector->data + (idx * vector->element_size), value, vector->element_size);
@@ -550,7 +550,7 @@ VAPI void CVector_insert(CVector *vector, const ssize_t index, const void *value
     return;
 }
 
-VAPI void CVector_set(CVector *vector, const ssize_t index, const void *value){
+VAPI void RSmvec_set(RSManagedVec *vector, const ssize_t index, const void *value){
     if(!vector || !vector->data) return;
 
     size_t idx = (size_t) index;
@@ -563,7 +563,7 @@ VAPI void CVector_set(CVector *vector, const ssize_t index, const void *value){
     return;
 }
 
-VAPI int CVector_get(CVector *vector, const ssize_t index, void *ret){
+VAPI int RSmvec_get(RSManagedVec *vector, const ssize_t index, void *ret){
     if(!vector || !vector->data) return 0;
 
     size_t idx = (size_t) index;
@@ -575,7 +575,7 @@ VAPI int CVector_get(CVector *vector, const ssize_t index, void *ret){
     return 1;
 }
 
-VAPI int CVector_getReference(CVector *vector, const ssize_t index, void *ret){
+VAPI int RSmvec_getReference(RSManagedVec *vector, const ssize_t index, void *ret){
     if(!vector || !vector->size) return 0;
 
     size_t idx = (size_t) index;
@@ -587,7 +587,7 @@ VAPI int CVector_getReference(CVector *vector, const ssize_t index, void *ret){
     return 1;
 }
 
-void *CVector_getPointer(CVector *vector, const ssize_t index){
+void *RSmvec_getPointer(RSManagedVec *vector, const ssize_t index){
     if(!vector || !vector->data) return NULL;
 
     size_t idx = (size_t) index;
@@ -597,7 +597,7 @@ void *CVector_getPointer(CVector *vector, const ssize_t index){
     return (char*)vector->data + (idx * vector->element_size);
 }
 
-VAPI void CVector_clear(CVector *vector){
+VAPI void RSmvec_clear(RSManagedVec *vector){
     if(!vector || !vector->data) return;
     
     if(!vector->destroy){
@@ -612,12 +612,12 @@ VAPI void CVector_clear(CVector *vector){
     return;
 }
 
-VAPI void CVector_resize(CVector *vector, ssize_t capacity){
+VAPI void RSmvec_resize(RSManagedVec *vector, ssize_t capacity){
     if(!vector || capacity < 0 || !vector->element_size) return;
     
     size_t cap = (size_t) capacity;
     if(!vector->data){
-        *vector = CVector_createCapacity(cap, vector->element_size, vector->destroy, vector->copy);
+        *vector = RSmvec_createCapacity(cap, vector->element_size, vector->destroy, vector->copy);
         return;
     }
 
@@ -637,10 +637,10 @@ VAPI void CVector_resize(CVector *vector, ssize_t capacity){
 
 
 
-VAPI CVector CVector_copyReturn(CVector *src){
+VAPI RSManagedVec RSmvec_copyReturn(RSManagedVec *src){
     if(!src) return CVECTOR_NULL();
 
-    CVector vector;
+    RSManagedVec vector;
     vector.size = src->size;
     vector.capacity = src->capacity;
     vector.element_size = src->element_size;
@@ -660,11 +660,11 @@ VAPI CVector CVector_copyReturn(CVector *src){
 }
 
 
-VAPI void CVector_copy(CVector *dest, CVector *src){
+VAPI void RSmvec_copy(RSManagedVec *dest, RSManagedVec *src){
     if(!dest || !src) return;
 
     // if(dest->data != NULL){
-    //     CVector_destroy(dest);
+    //     RSmvec_destroy(dest);
     // }
     dest->size = src->size;
     dest->capacity = src->capacity;
@@ -685,29 +685,29 @@ VAPI void CVector_copy(CVector *dest, CVector *src){
     return;
 }
 
-VAPI void Vector_copy_wrapper(void *dst, const void *src){
-    Vector_copy((Vector*)dst, (Vector*)src);
+VAPI void RSvec_copy_wrapper(void *dst, const void *src){
+    RSvec_copy((RSVec*)dst, (RSVec*)src);
 }
 
 
 
-VAPI size_t CVector_getCapacity(CVector *vector){
+VAPI size_t RSmvec_getCapacity(RSManagedVec *vector){
     if(vector) return vector->capacity;
     return 0;
 }
 
-VAPI size_t CVector_getSize(CVector *vector){
+VAPI size_t RSmvec_getSize(RSManagedVec *vector){
     if(vector) return vector->size;
     return 0;
 }
 
-VAPI int CVector_getSizeOfElements(CVector *vector){
+VAPI int RSmvec_getSizeOfElements(RSManagedVec *vector){
     if(vector) return vector->element_size;
     return 0;
 }
 
 
-VAPI void CVector_shiftRightFrom(CVector *vector, const ssize_t index){
+VAPI void RSmvec_shiftRightFrom(RSManagedVec *vector, const ssize_t index){
     if(!vector || !vector->size) return;
 
     size_t idx = (size_t) index;
@@ -727,7 +727,7 @@ VAPI void CVector_shiftRightFrom(CVector *vector, const ssize_t index){
     return;
 }
 
-VAPI void CVector_shiftLeftFrom(CVector *vector, const ssize_t index){
+VAPI void RSmvec_shiftLeftFrom(RSManagedVec *vector, const ssize_t index){
     if(!vector || !vector->size) return;
     
     size_t idx = (size_t) index;
@@ -744,7 +744,7 @@ VAPI void CVector_shiftLeftFrom(CVector *vector, const ssize_t index){
     return;
 }
 
-VAPI void CVector_shiftRightFromBy(CVector *vector, const ssize_t index, ssize_t amount){
+VAPI void RSmvec_shiftRightFromBy(RSManagedVec *vector, const ssize_t index, ssize_t amount){
     if(!vector || amount <= 0 || !vector->size) return;
 
 
@@ -766,7 +766,7 @@ VAPI void CVector_shiftRightFromBy(CVector *vector, const ssize_t index, ssize_t
     return;
 }
 
-VAPI void CVector_shiftLeftFromBy(CVector *vector, const ssize_t index, ssize_t amount){
+VAPI void RSmvec_shiftLeftFromBy(RSManagedVec *vector, const ssize_t index, ssize_t amount){
     if(!vector || amount <= 0 || !vector->size) return;
     
     size_t amt = (size_t) amount;
@@ -794,10 +794,10 @@ VAPI void CVector_shiftLeftFromBy(CVector *vector, const ssize_t index, ssize_t 
 
 
 
-VAPI void CVector_sort(const CVector *vector, const int (*CVector_compare)(const void *a, const void *b)){
+VAPI void RSmvec_sort(const RSManagedVec *vector, const int (*RSmvec_compare)(const void *a, const void *b)){
     if(!vector || !vector->size) return;
 
-    qsort(vector->data, vector->size, vector->element_size, CVector_compare);
+    qsort(vector->data, vector->size, vector->element_size, RSmvec_compare);
     return;
 }
 

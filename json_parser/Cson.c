@@ -79,10 +79,10 @@ CSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
     case JSON_OBJECT:
         printf("type = JSON_OBJECT{\n");
         for(int i = 0; i < node->value.val.object.size - 1; i++){
-            Cson_printKeyValtype(CVector_getPointer(&node->value.val.object, i), level + 1);
+            Cson_printKeyValtype(RSmvec_getPointer(&node->value.val.object, i), level + 1);
             printf(",\n");
         }
-        Cson_printKeyValtype(CVector_getPointer(&node->value.val.object, node->value.val.object.size - 1), level + 1);
+        Cson_printKeyValtype(RSmvec_getPointer(&node->value.val.object, node->value.val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -93,10 +93,10 @@ CSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
     case JSON_ARRAY:
         printf("type = JSON_ARRAY[\n");
         for(int i = 0; i < node->value.val.array.size - 1; i++){
-            Cson_printASTtype(CVector_getPointer(&node->value.val.array, i), level + 1);
+            Cson_printASTtype(RSmvec_getPointer(&node->value.val.array, i), level + 1);
             printf(",\n");
         }
-        Cson_printASTtype(CVector_getPointer(&node->value.val.array, node->value.val.array.size - 1), level + 1);
+        Cson_printASTtype(RSmvec_getPointer(&node->value.val.array, node->value.val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -137,10 +137,10 @@ CSAPI void Cson_printASTtype(JsonParserValue *node, int level){
     case JSON_OBJECT:
         printf("type = JSON_OBJECT{\n");
         for(int i = 0; i < node->val.object.size - 1; i++){
-            Cson_printKeyValtype(CVector_getPointer(&node->val.object, i), level + 1);
+            Cson_printKeyValtype(RSmvec_getPointer(&node->val.object, i), level + 1);
             printf(",\n");
         }
-        Cson_printKeyValtype(CVector_getPointer(&node->val.object, node->val.object.size - 1), level + 1);
+        Cson_printKeyValtype(RSmvec_getPointer(&node->val.object, node->val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -151,10 +151,10 @@ CSAPI void Cson_printASTtype(JsonParserValue *node, int level){
     case JSON_ARRAY:
         printf("type = JSON_ARRAY[\n");
         for(int i = 0; i < node->val.array.size - 1; i++){
-            Cson_printASTtype(CVector_getPointer(&node->val.array, i), level + 1);
+            Cson_printASTtype(RSmvec_getPointer(&node->val.array, i), level + 1);
             printf(",\n");
         }
-        Cson_printASTtype(CVector_getPointer(&node->val.array, node->val.array.size - 1), level + 1);
+        Cson_printASTtype(RSmvec_getPointer(&node->val.array, node->val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -201,10 +201,10 @@ CSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
     case JSON_OBJECT:
         printf("{\n");
         for(int i = 0; i < node->value.val.object.size - 1; i++){
-            Cson_printKeyVal(CVector_getPointer(&node->value.val.object, i), level + 1);
+            Cson_printKeyVal(RSmvec_getPointer(&node->value.val.object, i), level + 1);
             printf(",\n");
         }
-        Cson_printKeyVal(CVector_getPointer(&node->value.val.object, node->value.val.object.size - 1), level + 1);
+        Cson_printKeyVal(RSmvec_getPointer(&node->value.val.object, node->value.val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -215,10 +215,10 @@ CSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
     case JSON_ARRAY:
         printf("[\n");
         for(int i = 0; i < node->value.val.array.size - 1; i++){
-            Cson_printAST(CVector_getPointer(&node->value.val.array, i), level + 1);
+            Cson_printAST(RSmvec_getPointer(&node->value.val.array, i), level + 1);
             printf(",\n");
         }
-        Cson_printAST(CVector_getPointer(&node->value.val.array, node->value.val.array.size - 1), level + 1);
+        Cson_printAST(RSmvec_getPointer(&node->value.val.array, node->value.val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -264,10 +264,10 @@ CSAPI void Cson_printAST(JsonParserValue *node, int level){
     case JSON_OBJECT:
         printf("{\n");
         for(int i = 0; i < node->val.object.size - 1; i++){
-            Cson_printKeyVal(CVector_getPointer(&node->val.object, i), level + 1);
+            Cson_printKeyVal(RSmvec_getPointer(&node->val.object, i), level + 1);
             printf(",\n");
         }
-        Cson_printKeyVal(CVector_getPointer(&node->val.object, node->val.object.size - 1), level + 1);
+        Cson_printKeyVal(RSmvec_getPointer(&node->val.object, node->val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -278,10 +278,10 @@ CSAPI void Cson_printAST(JsonParserValue *node, int level){
     case JSON_ARRAY:
         printf("[\n");
         for(int i = 0; i < node->val.array.size - 1; i++){
-            Cson_printAST(CVector_getPointer(&node->val.array, i), level + 1);
+            Cson_printAST(RSmvec_getPointer(&node->val.array, i), level + 1);
             printf(",\n");
         }
-        Cson_printAST(CVector_getPointer(&node->val.array, node->val.array.size - 1), level + 1);
+        Cson_printAST(RSmvec_getPointer(&node->val.array, node->val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
             //putchar('\t');
@@ -305,19 +305,19 @@ CSAPI void Cson_free(JsonParserValue *node){
             return;
 
         case JSON_STRING:
-            String_destroy(&node->val.string);
+            RSstr_destroy(&node->val.string);
             break;
         case JSON_ARRAY:
-            for(int i = 0; i < CVector_getSize(&node->val.array); i++){
-                Cson_free(CVector_getPointer(&node->val.array, i));
-                CVector_destroy(&node->val.array);
+            for(int i = 0; i < RSmvec_getSize(&node->val.array); i++){
+                Cson_free(RSmvec_getPointer(&node->val.array, i));
+                RSmvec_destroy(&node->val.array);
             }
         case JSON_OBJECT:
-            for(int i = 0; i < CVector_getSize(&node->val.array); i++){
-                JsonKeyValuePair *p = CVector_getPointer(&node->val.object, i);
-                String_destroy(&p->key);
+            for(int i = 0; i < RSmvec_getSize(&node->val.array); i++){
+                JsonKeyValuePair *p = RSmvec_getPointer(&node->val.object, i);
+                RSstr_destroy(&p->key);
                 Cson_free(&p->value);
-                CVector_destroy(&node->val.object);
+                RSmvec_destroy(&node->val.object);
             }
         break;
     }
@@ -363,11 +363,11 @@ CSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
             }
             break;
         case ']':
-            if(json_arr_index >= CVector_getSize(&node->val.array)){
+            if(json_arr_index >= RSmvec_getSize(&node->val.array)){
                 printf("incorrect array index - out of bounds\n");
                 return NULL;
             }
-            node = CVector_getPointer(&node->val.array, json_arr_index);
+            node = RSmvec_getPointer(&node->val.array, json_arr_index);
             index++;
             // if(path[index] != '.' && path[index] != '[' && path[index] != '\0'){
             if(path[index] != '.' && path[index] != '\0'){
@@ -405,7 +405,7 @@ CSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
             // path[index] = '\0';
             for(size_t i = 0; i < node->val.object.size; i++){
                 JsonKeyValuePair *kp;
-                kp = CVector_getPointer(&node->val.object, i);
+                kp = RSmvec_getPointer(&node->val.object, i);
                 char *t = kp->key.text;
                 for(int i = start; i < index; i++){
                     if(*t == '\0' || path[i] != *t){
@@ -434,7 +434,7 @@ CSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
     return node;
 }
 
-CSAPI JsonParserValue Cson_parseObject(String *data, size_t *start){
+CSAPI JsonParserValue Cson_parseObject(RSStr *data, size_t *start){
     size_t input_size = data->size;
     size_t index = *start;
     JsonParserValue ret_val;
@@ -442,12 +442,12 @@ CSAPI JsonParserValue Cson_parseObject(String *data, size_t *start){
     ret_val.val.object = CVECTOR_EMPTY(JsonKeyValuePair, NULL, NULL);
     JsonKeyValuePair keyVal_pair;
     char character;
-    String_get(data, index, &character);
+    RSstr_get(data, index, &character);
     if(character == '}'){
         return ret_val;
     }
     while(index < input_size){
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
         //I have to check if the object has been closed
         if(character !='\"'){
             //free here
@@ -460,22 +460,22 @@ CSAPI JsonParserValue Cson_parseObject(String *data, size_t *start){
         if(temp.type == JSON_ERROR){
             //free here
             Cson_free(&ret_val);
-            String_destroy(&temp.val.string);
+            RSstr_destroy(&temp.val.string);
             ret_val.type = JSON_ERROR;
             return ret_val;
         }
         keyVal_pair.key = temp.val.string;
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
 
         if(character != ':'){
             //free here
             Cson_free(&ret_val);
-            String_destroy(&temp.val.string);
+            RSstr_destroy(&temp.val.string);
             ret_val.type = JSON_ERROR;
             return ret_val;
         }
         index++;
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
 
 
 
@@ -503,15 +503,15 @@ CSAPI JsonParserValue Cson_parseObject(String *data, size_t *start){
             break;
         default:
             Cson_free(&ret_val);
-            String_destroy(&temp.val.string);
+            RSstr_destroy(&temp.val.string);
             ret_val.type = JSON_ERROR;
             return ret_val;
             break;
         }
 
         keyVal_pair.value = temp;
-        CVector_push(&ret_val.val.object, &keyVal_pair);
-        String_get(data, index, &character);
+        RSmvec_push(&ret_val.val.object, &keyVal_pair);
+        RSstr_get(data, index, &character);
         if(character == '}' ){
             goto return_object;
             // return ret_val;
@@ -528,7 +528,7 @@ CSAPI JsonParserValue Cson_parseObject(String *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseArray(String *data, size_t *start){
+CSAPI JsonParserValue Cson_parseArray(RSStr *data, size_t *start){
     size_t index = *start;
     size_t input_size = data->size;
     JsonParserValue ret_val;
@@ -536,7 +536,7 @@ CSAPI JsonParserValue Cson_parseArray(String *data, size_t *start){
     ret_val.type = JSON_ARRAY;
     ret_val.val.object = CVECTOR_EMPTY(JsonParserValue, NULL, NULL);
     char character;
-    String_get(data, index, &character);
+    RSstr_get(data, index, &character);
     // if(character == ']'){
     //     *start = ++index;
     //     return ret_val;
@@ -547,7 +547,7 @@ CSAPI JsonParserValue Cson_parseArray(String *data, size_t *start){
     }
 
     while(index < input_size){
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
         switch (character){
         case ',':
             index++;
@@ -589,20 +589,20 @@ CSAPI JsonParserValue Cson_parseArray(String *data, size_t *start){
             ret_val.type = JSON_ERROR;
             return ret_val;
         }
-        CVector_push(&ret_val.val.array, &temp);
+        RSmvec_push(&ret_val.val.array, &temp);
         // index++;
     }
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseString(String *data, size_t *start){
+CSAPI JsonParserValue Cson_parseString(RSStr *data, size_t *start){
     size_t input_size = data->size;
     size_t index = *start;
 
     char temp;    
     while(index < input_size){
         char character;
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
         switch (character) {
             case '\\':
                 index++;
@@ -629,14 +629,14 @@ CSAPI JsonParserValue Cson_parseString(String *data, size_t *start){
     return_string:
     JsonParserValue ret_val = {
         .type = JSON_STRING,
-        .val.string = String_createAssign(data->text + *start)
+        .val.string = RSstr_createAssign(data->text + *start)
     };
     data->text[index] = temp;
     *start = index + 1;
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseBoolean(String *data, size_t *start){
+CSAPI JsonParserValue Cson_parseBoolean(RSStr *data, size_t *start){
     size_t index = *start;
     char *text = data->text + index;
     JsonParserValue ret_val = {
@@ -656,7 +656,7 @@ CSAPI JsonParserValue Cson_parseBoolean(String *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseNull(String *data, size_t *start){
+CSAPI JsonParserValue Cson_parseNull(RSStr *data, size_t *start){
     size_t index = *start;
     char *text = data->text + index;
     JsonParserValue ret_val = {
@@ -671,7 +671,7 @@ CSAPI JsonParserValue Cson_parseNull(String *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseNumeric(String *data, size_t *start){
+CSAPI JsonParserValue Cson_parseNumeric(RSStr *data, size_t *start){
     size_t input_size = data->size;
     size_t index = *start;
 
@@ -681,7 +681,7 @@ CSAPI JsonParserValue Cson_parseNumeric(String *data, size_t *start){
     char character;
     JsonParserValue ret_val;
     while(index < input_size){
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
         
         if(character >= '0' && character <= '9'){
             number *= 10;
@@ -703,7 +703,7 @@ CSAPI JsonParserValue Cson_parseNumeric(String *data, size_t *start){
     }
     if(index == input_size) goto return_number;
     parse_decimal:
-    String_get(data, index, &character);
+    RSstr_get(data, index, &character);
     if(character < '0' || character > '9'){
         return (JsonParserValue){
             .type = JSON_ERROR
@@ -714,7 +714,7 @@ CSAPI JsonParserValue Cson_parseNumeric(String *data, size_t *start){
     number = 0;
     while(index < input_size){
         char character;
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
         
         if(character >= '0' && character <= '9'){
             divisor *= 10;
@@ -747,18 +747,18 @@ CSAPI JsonParserValue Cson_parseNumeric(String *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_loadData(String *data){
+CSAPI JsonParserValue Cson_loadData(RSStr *data){
     if(!data || !data->size ) return (JsonParserValue){.type = JSON_ERROR};
-    String white_spaces = String_createAssign(" \n\t\r");
-    String_removeCharacterSet(data, &white_spaces);
-    String_destroy(&white_spaces);
+    RSStr white_spaces = RSstr_createAssign(" \n\t\r");
+    RSstr_removeCharacterSet(data, &white_spaces);
+    RSstr_destroy(&white_spaces);
 
     size_t input_size = data->size;
     size_t index = 0;
     JsonParserValue ret_val;
     // while(index < input_size){
         char character;
-        String_get(data, index, &character);
+        RSstr_get(data, index, &character);
         switch (character) {
         case '\"':
             index++;

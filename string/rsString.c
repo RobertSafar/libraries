@@ -1,7 +1,7 @@
 // #ifndef MYSTRING_C
 // #define MYSTRING_C
 
-#include "myString.h"
+#include "rsString.h"
 
 
 #ifdef _WIN32
@@ -18,8 +18,8 @@
 
 
 
-MSAPI String String_create(){
-    String string;
+MSAPI RSStr RSstr_create(){
+    RSStr string;
     string.size = 0;
     string.capacity = 10 + 1;
     string.text = malloc(sizeof(char) * string.capacity);
@@ -27,10 +27,10 @@ MSAPI String String_create(){
     return string;
 }
 
-MSAPI String String_createCapacity(ssize_t capacity){
+MSAPI RSStr RSstr_createCapacity(ssize_t capacity){
     if(capacity < 0) return STRING_EMPTY();
 
-    String string;
+    RSStr string;
     string.size = 0;
     string.capacity = (size_t) capacity + 1;
     string.text = malloc(sizeof(char) * string.capacity);
@@ -39,16 +39,16 @@ MSAPI String String_createCapacity(ssize_t capacity){
 }
 
 /*
-//create a String with a desired amount of elements and set it to be full
-MSAPI String String_createSize(ssize_t size);
+//create a RSStr with a desired amount of elements and set it to be full
+MSAPI RSStr RSstr_createSize(ssize_t size);
 */
 
 
-MSAPI String String_createSizeSet(ssize_t size, char value){
+MSAPI RSStr RSstr_createSizeSet(ssize_t size, char value){
     if(size < 0) return STRING_EMPTY();
 
     size_t sz = (size_t) size;
-    String string;
+    RSStr string;
     string.size = sz;
     string.capacity = sz + 1 + SIZE_RESERVE;
     string.text = malloc(sizeof(char) * string.capacity);
@@ -57,12 +57,12 @@ MSAPI String String_createSizeSet(ssize_t size, char value){
     return string;
 }
 
-MSAPI String String_createAssign(char *text){
+MSAPI RSStr RSstr_createAssign(char *text){
     size_t len = 0;
     while(*(text + len) != '\0'){
         len++;
     }
-    String string;
+    RSStr string;
     string.size = len;
     string.capacity = len + 1 + SIZE_RESERVE;
     string.text = malloc(sizeof(char) * string.capacity);
@@ -71,7 +71,7 @@ MSAPI String String_createAssign(char *text){
     return string;
 }
 
-MSAPI void String_destroy(String *string){
+MSAPI void RSstr_destroy(RSStr *string){
     if(!string || !string->text) return;
 
     free(string->text);
@@ -81,7 +81,7 @@ MSAPI void String_destroy(String *string){
     return;
 }
 
-MSAPI char *String_detach(String *string){
+MSAPI char *RSstr_detach(RSStr *string){
     char *retval = string->text;
     string->size = 0;
     string->capacity = 0;
@@ -90,7 +90,7 @@ MSAPI char *String_detach(String *string){
 }
 
 
-MSAPI void String_assign(String *string, const char *text){
+MSAPI void RSstr_assign(RSStr *string, const char *text){
     if(!string || !text) return;
 
     size_t len = 0;
@@ -108,7 +108,7 @@ MSAPI void String_assign(String *string, const char *text){
     return;
 }
 
-MSAPI void String_assignLength(String *string, const char *text, size_t length){
+MSAPI void RSstr_assignLength(RSStr *string, const char *text, size_t length){
     if(!string || !text) return;
 
     for(size_t i = 0; i < length; i++){
@@ -128,7 +128,7 @@ MSAPI void String_assignLength(String *string, const char *text, size_t length){
     return;
 }
 
-MSAPI void String_assignString(String *string, String *src){
+MSAPI void RSstr_assignString(RSStr *string, RSStr *src){
     if(!src || !string) return;
 
     if(src->size >= string->capacity){
@@ -142,7 +142,7 @@ MSAPI void String_assignString(String *string, String *src){
     return;
 }
 
-MSAPI void String_appendChar(String *string, const char value){
+MSAPI void RSstr_appendChar(RSStr *string, const char value){
     if(!string) return;
     if(string->size + 1 == string->capacity){
         string->capacity *= 2;
@@ -154,7 +154,7 @@ MSAPI void String_appendChar(String *string, const char value){
     return;
 }
 
-MSAPI void String_append(String *string, const char *text){
+MSAPI void RSstr_append(RSStr *string, const char *text){
     if(!string) return;
 
     size_t len = 0;
@@ -172,7 +172,7 @@ MSAPI void String_append(String *string, const char *text){
     return;
 }
 
-MSAPI void String_appendLength(String *string, const char *text, ssize_t length){
+MSAPI void RSstr_appendLength(RSStr *string, const char *text, ssize_t length){
     if(!string || length <= 0) return;
 
     
@@ -186,17 +186,17 @@ MSAPI void String_appendLength(String *string, const char *text, ssize_t length)
     return;
 }
 /*
-//get the last element of a String and return it in the "ret" variable. Removes the last element
-MSAPI void String_pop(String *string, char *ret);
+//get the last element of a RSStr and return it in the "ret" variable. Removes the last element
+MSAPI void RSstr_pop(RSStr *string, char *ret);
 */
 
-MSAPI void String_insert(String *string, const ssize_t index, const char *text){
+MSAPI void RSstr_insert(RSStr *string, const ssize_t index, const char *text){
     if(!string || index < 0) return;
 
     size_t idx = (size_t) index;
     if(idx > string->size) return;
     else if(idx == string->size){
-        String_append(string, text);
+        RSstr_append(string, text);
         return;
     }
 
@@ -217,7 +217,7 @@ MSAPI void String_insert(String *string, const ssize_t index, const char *text){
     return;
 }
 
-MSAPI void String_set(String *string, const ssize_t index, const char *text){
+MSAPI void RSstr_set(RSStr *string, const ssize_t index, const char *text){
     if(!string || !string->text) return;
 
     size_t idx = (size_t) index;
@@ -242,7 +242,7 @@ MSAPI void String_set(String *string, const ssize_t index, const char *text){
     return;
 }
 
-MSAPI int String_get(String *string, const ssize_t index, char *ret){
+MSAPI int RSstr_get(RSStr *string, const ssize_t index, char *ret){
     if(!string || !string->text){
         *ret = '\0';
         return 0;
@@ -251,17 +251,17 @@ MSAPI int String_get(String *string, const ssize_t index, char *ret){
     return 0;
 }
 
-MSAPI inline char String_getUnsafe(String *string, const ssize_t index){
+MSAPI inline char RSstr_getUnsafe(RSStr *string, const ssize_t index){
     return string->text[index];
 }
 
 
-MSAPI void String_clear(String *string){
+MSAPI void RSstr_clear(RSStr *string){
     string->size = 0;
     return;
 }
 
-MSAPI void String_resize(String *string, ssize_t capacity){
+MSAPI void RSstr_resize(RSStr *string, ssize_t capacity){
     if(!string || capacity < 0) return;
 
     size_t cap = (size_t) capacity;
@@ -283,10 +283,10 @@ MSAPI void String_resize(String *string, ssize_t capacity){
 
 
 
-MSAPI String String_copyReturn(String *src){
+MSAPI RSStr RSstr_copyReturn(RSStr *src){
     if(!src) return STRING_NULL();
 
-    String string;
+    RSStr string;
     string.size = src->size;
     string.capacity = src->capacity;
     string.text = malloc(src->capacity * sizeof(char));
@@ -295,7 +295,7 @@ MSAPI String String_copyReturn(String *src){
     return string;
 }
 
-MSAPI void String_copy(String *dest, String *src){
+MSAPI void RSstr_copy(RSStr *dest, RSStr *src){
     if(!dest || !src) return;
     // if(dest->text){
     //     free(dest->text);
@@ -308,37 +308,37 @@ MSAPI void String_copy(String *dest, String *src){
     return;
 }
 
-MSAPI void String_copyShallow(String *dest, String *src){
+MSAPI void RSstr_copyShallow(RSStr *dest, RSStr *src){
     if(!dest || !src) return;
-    memcpy(dest, src, sizeof(String));
+    memcpy(dest, src, sizeof(RSStr));
     return;
 }
 
 
 
-MSAPI size_t String_getCapacity(String *string){
+MSAPI size_t RSstr_getCapacity(RSStr *string){
     if(string) return string->capacity;
     return 0;
 }
 
-MSAPI size_t String_getSize(String *string){
+MSAPI size_t RSstr_getSize(RSStr *string){
     if(string) return string->size;
     return 0;
 }
 
-MSAPI char *String_getTextPointer(String *string){
+MSAPI char *RSstr_getTextPointer(RSStr *string){
     if(string) return string->text;
     return NULL;
 }
 
-MSAPI char *String_getTextPointerOffset(String *string, ssize_t offset){
+MSAPI char *RSstr_getTextPointerOffset(RSStr *string, ssize_t offset){
     if(offset >= 0 && (size_t)offset < string->size && string) return string->text + (size_t)offset;
     return NULL;
 }
 
 
 
-MSAPI void String_shiftRightFromBy(String *string, const ssize_t index, const ssize_t amount){
+MSAPI void RSstr_shiftRightFromBy(RSStr *string, const ssize_t index, const ssize_t amount){
     if(!string || amount == 0 || !string->size) return;
 
     size_t amt = (size_t) amount;
@@ -357,7 +357,7 @@ MSAPI void String_shiftRightFromBy(String *string, const ssize_t index, const ss
     return;
 }
 
-MSAPI void String_shiftLeftFromBy(String *string, const ssize_t index, const ssize_t amount){
+MSAPI void RSstr_shiftLeftFromBy(RSStr *string, const ssize_t index, const ssize_t amount){
     if(!string || amount <= 0 || !string->size) return;
 
     size_t amt = (size_t) amount;
@@ -378,7 +378,7 @@ MSAPI void String_shiftLeftFromBy(String *string, const ssize_t index, const ssi
 
 
 
-MSAPI bool String_isEqual(String *str1, String *str2){
+MSAPI bool RSstr_isEqual(RSStr *str1, RSStr *str2){
     if(str1->size != str2->size) return false;
 
     for(size_t i = 0; i < str1->size; i++){
@@ -387,7 +387,7 @@ MSAPI bool String_isEqual(String *str1, String *str2){
     return true;
 }
 
-long long int String_chr(String *str, char character){
+long long int RSstr_chr(RSStr *str, char character){
     if(str->size <= 0) return -1;
 
     for(size_t i = 0; i < str->size; i++){
@@ -396,7 +396,7 @@ long long int String_chr(String *str, char character){
     return -1;
 }
 
-void String_stripWhiteSpaces(String *string){
+void RSstr_stripWhiteSpaces(RSStr *string){
     if(!string || !string->size) return;
 
     //first non white space character
@@ -445,11 +445,11 @@ void String_stripWhiteSpaces(String *string){
 
     string->size = last_char + 1;
     string->text[last_char + 1] = '\0';
-    String_shiftLeftFromBy(string, (ssize_t)last_char, (ssize_t)first_char);
+    RSstr_shiftLeftFromBy(string, (ssize_t)last_char, (ssize_t)first_char);
     return;
 }
 
-void String_removeCharacter(String *string, char character){
+void RSstr_removeCharacter(RSStr *string, char character){
     if(!string || !string->size) return;
 
     size_t write_index = 0;
@@ -474,7 +474,7 @@ void String_removeCharacter(String *string, char character){
     string->text[write_index] = '\0';
 }
 
-void String_removeCharacterSet(String *string, String *characters){
+void RSstr_removeCharacterSet(RSStr *string, RSStr *characters){
     if(!string || !characters || !string->size || !characters->size) return;
 
     bool look_up[256] = {false};
@@ -496,7 +496,7 @@ void String_removeCharacterSet(String *string, String *characters){
     string->text[write_index] = '\0';
 }
 
-void String_removeCharacterSetC(String *string, char *characters){
+void RSstr_removeCharacterSetC(RSStr *string, char *characters){
     if(!string || !characters || !string->size) return;
 
     bool look_up[256] = {false};
@@ -519,7 +519,7 @@ void String_removeCharacterSetC(String *string, char *characters){
     string->text[write_index] = '\0';
 }
 
-bool String_endsWith(String *string, const char *suffix){
+bool RSstr_endsWith(RSStr *string, const char *suffix){
     if(!string || !string->size || !suffix) return false;
 
     size_t len = 0;
@@ -541,7 +541,7 @@ bool String_endsWith(String *string, const char *suffix){
 
 
 
-MSAPI void String_print(const String *string){
+MSAPI void RSstr_print(const RSStr *string){
     for(int i = 0; i < string->size; i++){
         char character = *(string->text + i);
         putchar(character);
@@ -549,7 +549,7 @@ MSAPI void String_print(const String *string){
     return;
 }
 
-MSAPI void String_println(const String *string){
+MSAPI void RSstr_println(const RSStr *string){
     for(int i = 0; i < string->size; i++){
         char character = *(string->text + i);
         putchar(character);

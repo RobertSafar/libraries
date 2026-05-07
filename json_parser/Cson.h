@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-#include "../string/myString.h"
-#include "../vector/vector.h"
+#include "../string/rsString.h"
+#include "../vector/rsVector.h"
 
 
 typedef enum{
@@ -28,14 +28,14 @@ typedef struct JsonParserValue{
         int number;
         double decimal;
         bool boolean;
-        String string;
-        CVector array;
-        CVector object;
+        RSStr string;
+        RSManagedVec array;
+        RSManagedVec object;
     }val;
 }JsonParserValue;
 
 typedef struct JsonKeyValuePair{
-    String key;
+    RSStr key;
     JsonParserValue value;
 }JsonKeyValuePair;
 
@@ -54,12 +54,12 @@ void Cson_free(JsonParserValue *node);
 JsonParserValue *Cson_get(JsonParserValue *root, char *path);
 
 
-JsonParserValue Cson_parseObject(String *data, size_t *start);
-JsonParserValue Cson_parseArray(String *data, size_t *start);
-JsonParserValue Cson_parseString(String *data, size_t *start);
-JsonParserValue Cson_parseBoolean(String *data, size_t *start);
-JsonParserValue Cson_parseNull(String *data, size_t *start);
-JsonParserValue Cson_parseNumeric(String *data, size_t *start);
-JsonParserValue Cson_loadData(String *data);
+JsonParserValue Cson_parseObject(RSStr *data, size_t *start);
+JsonParserValue Cson_parseArray(RSStr *data, size_t *start);
+JsonParserValue Cson_parseString(RSStr *data, size_t *start);
+JsonParserValue Cson_parseBoolean(RSStr *data, size_t *start);
+JsonParserValue Cson_parseNull(RSStr *data, size_t *start);
+JsonParserValue Cson_parseNumeric(RSStr *data, size_t *start);
+JsonParserValue Cson_loadData(RSStr *data);
 
 #endif
