@@ -5,5 +5,5 @@ This is a String implementation in C made for learning and personal use purposes
 
 This is a **length-based string implementation** that is also **null-terminated** for compatibility with standard C strings.
 
-The name **myString** is used to differentiate it from the standard <string.h> library.
+
 
