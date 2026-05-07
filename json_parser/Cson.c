@@ -3,17 +3,17 @@
 
 #ifdef _WIN32
     #ifdef BUILDING_DLL
-        #define CSAPI __declspec(dllexport)
+        #define RSAPI __declspec(dllexport)
     #elif defined(USING_DLL)
-        #define CSAPI __declspec(dllimport)
+        #define RSAPI __declspec(dllimport)
     #else
-        #define CSAPI
+        #define RSAPI
     #endif
 #else
-  #define CSAPI   /* nothing */
+  #define RSAPI   /* nothing */
 #endif
 
-CSAPI void Cson_printNode(JsonParserValue *node){
+RSAPI void Cson_printNode(JsonParserValue *node){
     if(!node) return;
     switch (node->type){
     case JSON_ERROR:
@@ -51,7 +51,7 @@ CSAPI void Cson_printNode(JsonParserValue *node){
     return;
 }
 
-CSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
+RSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
     for(int i = 0; i < level; i++){
         //putchar('\t');
         printf("    ");
@@ -110,7 +110,7 @@ CSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
     return;
 }
 
-CSAPI void Cson_printASTtype(JsonParserValue *node, int level){
+RSAPI void Cson_printASTtype(JsonParserValue *node, int level){
     for(int i = 0; i < level; i++){
         //putchar('\t');
         printf("    ");
@@ -168,7 +168,7 @@ CSAPI void Cson_printASTtype(JsonParserValue *node, int level){
     return;
 }
 
-CSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
+RSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
     for(int i = 0; i < level; i++){
         //putchar('\t');
         printf("    ");
@@ -232,7 +232,7 @@ CSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
     return;
 }
 
-CSAPI void Cson_printAST(JsonParserValue *node, int level){
+RSAPI void Cson_printAST(JsonParserValue *node, int level){
     for(int i = 0; i < level; i++){
         //putchar('\t');
         printf("    ");
@@ -295,7 +295,7 @@ CSAPI void Cson_printAST(JsonParserValue *node, int level){
     return;
 }
 
-CSAPI void Cson_free(JsonParserValue *node){
+RSAPI void Cson_free(JsonParserValue *node){
     switch(node->type){
         case JSON_BOOLEAN:
         case JSON_DOUBLE:
@@ -324,7 +324,7 @@ CSAPI void Cson_free(JsonParserValue *node){
     return;
 }
 
-CSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
+RSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
     if(!root) return NULL;
 
     JsonParserValue *node = root;
@@ -434,7 +434,7 @@ CSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
     return node;
 }
 
-CSAPI JsonParserValue Cson_parseObject(RSStr *data, size_t *start){
+RSAPI JsonParserValue Cson_parseObject(RSStr *data, size_t *start){
     size_t input_size = data->size;
     size_t index = *start;
     JsonParserValue ret_val;
@@ -528,7 +528,7 @@ CSAPI JsonParserValue Cson_parseObject(RSStr *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseArray(RSStr *data, size_t *start){
+RSAPI JsonParserValue Cson_parseArray(RSStr *data, size_t *start){
     size_t index = *start;
     size_t input_size = data->size;
     JsonParserValue ret_val;
@@ -595,7 +595,7 @@ CSAPI JsonParserValue Cson_parseArray(RSStr *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseString(RSStr *data, size_t *start){
+RSAPI JsonParserValue Cson_parseString(RSStr *data, size_t *start){
     size_t input_size = data->size;
     size_t index = *start;
 
@@ -636,7 +636,7 @@ CSAPI JsonParserValue Cson_parseString(RSStr *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseBoolean(RSStr *data, size_t *start){
+RSAPI JsonParserValue Cson_parseBoolean(RSStr *data, size_t *start){
     size_t index = *start;
     char *text = data->text + index;
     JsonParserValue ret_val = {
@@ -656,7 +656,7 @@ CSAPI JsonParserValue Cson_parseBoolean(RSStr *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseNull(RSStr *data, size_t *start){
+RSAPI JsonParserValue Cson_parseNull(RSStr *data, size_t *start){
     size_t index = *start;
     char *text = data->text + index;
     JsonParserValue ret_val = {
@@ -671,7 +671,7 @@ CSAPI JsonParserValue Cson_parseNull(RSStr *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_parseNumeric(RSStr *data, size_t *start){
+RSAPI JsonParserValue Cson_parseNumeric(RSStr *data, size_t *start){
     size_t input_size = data->size;
     size_t index = *start;
 
@@ -747,7 +747,7 @@ CSAPI JsonParserValue Cson_parseNumeric(RSStr *data, size_t *start){
     return ret_val;
 }
 
-CSAPI JsonParserValue Cson_loadData(RSStr *data){
+RSAPI JsonParserValue Cson_loadData(RSStr *data){
     if(!data || !data->size ) return (JsonParserValue){.type = JSON_ERROR};
     RSStr white_spaces = RSstr_createAssign(" \n\t\r");
     RSstr_removeCharacterSet(data, &white_spaces);
