@@ -30,7 +30,7 @@ typedef struct RSStr{
 //string where all elements are set to 0
 #define STRING_EMPTY() (RSStr){0, 0, NULL}
 
-//create a RSStr with enough sapce for 10 elements
+//create a RSStr with enough space for 10 elements
 RSStr RSstr_create();
 //create a RSStr with a desired amount of elemnts
 RSStr RSstr_createCapacity(ssize_t capacity);

@@ -33,9 +33,9 @@ typedef struct RSVec{
 //other data type that uses dynamically allocated memory.
 //if you want to store data types that use dynamic memory, use the RSManagedVec functions.
 
-//create a vector with enough sapce for 10 elements
+//create a vector with enough space for 10 elements
 RSVec RSvec_create(int element_size);
-//create a vector with a desired amount of elemnts
+//create a vector with a desired amount of elements
 RSVec RSvec_createCapacity(ssize_t capacity, int element_size);
 //create a vector with a desired amount of elements and set it to be full
 RSVec RSvec_createSize(ssize_t size, int element_size);
@@ -53,7 +53,7 @@ void RSvec_push(RSVec *vector, const void *value);
 void RSvec_pushArray(RSVec *vector, const void *value, ssize_t amount);
 //get the last element of a vector and return it in the "ret" variable. Removes the last element
 int RSvec_pop(RSVec *vector, void *ret);
-//insert an element anywhere inside a vecter, if inserting outside the used memory 
+//insert an element anywhere inside a vector, if inserting outside the used memory 
 //(i.e. vector has 10 elements and we are inserting to position 15) nothing is done
 void RSvec_insert(RSVec *vector, const ssize_t index, const void *value);
 //rewrite one of the elements with a value
@@ -127,13 +127,13 @@ typedef struct RSManagedVec{
 //empty RSManagedVec using element size
 #define _CVECTOR_EMPTY(element_size, destroy, copy) (RSManagedVec){0, 0, element_size, NULL, destroy, copy}
 
-//create a vector with enough sapce for 10 elements
+//create a vector with enough space for 10 elements
 RSManagedVec RSmvec_create(int element_size, CVdestroy_func destroy, CVcopy_func copy);
-//create a default 1D vector (Same as the simple RSVec) with enough sapce for 10 elements
+//create a default 1D vector (Same as the simple RSVec) with enough space for 10 elements
 RSManagedVec RSmvec_createDefault1D(int element_size);
-//create a default 2D vector (RSVec of vectors) with enough sapce for 10 elements
+//create a default 2D vector (RSVec of vectors) with enough space for 10 elements
 RSManagedVec RSmvec_createDefault2D(int element_size);
-//create a vector with a desired amount of elemnts
+//create a vector with a desired amount of elements
 RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy);
 //create a vector with a desired amount of elements and set it to be full
 RSManagedVec RSmvec_createSize(ssize_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy);
@@ -150,7 +150,7 @@ void RSvec_destroy_wrapper(void *element);
 void RSmvec_push(RSManagedVec *vector, const void *value);
 //get the last element of a vector and return it in the "ret" variable. Removes the last element
 int RSmvec_pop(RSManagedVec *vector, void *ret);
-//insert an element anywhere inside a vecter, if inserting outside the used memory 
+//insert an element anywhere inside a vector, if inserting outside the used memory 
 //(i.e. vector has 10 elements and we are inserting to position 15) nothing is done
 void RSmvec_insert(RSManagedVec *vector, const ssize_t index, const void *value);
 //rewrite one of the elements with a value
