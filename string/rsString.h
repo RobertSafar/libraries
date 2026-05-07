@@ -1,5 +1,5 @@
-#ifndef MYSTRING
-#define MYSTRING
+#ifndef RS_STRING_H
+#define RS_STRING_H
 
 #include <stdio.h>
 #include <stdlib.h>

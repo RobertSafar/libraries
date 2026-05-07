@@ -1,5 +1,5 @@
-#ifndef CSON
-#define CSON
+#ifndef CSON_H
+#define CSON_H
 
 #include <stdbool.h>
 

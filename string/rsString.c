@@ -1,6 +1,3 @@
-// #ifndef MYSTRING_C
-// #define MYSTRING_C
-
 #include "rsString.h"
 
 
@@ -38,10 +35,7 @@ RSAPI RSStr RSstr_createCapacity(ssize_t capacity){
     return string;
 }
 
-/*
-//create a RSStr with a desired amount of elements and set it to be full
-RSAPI RSStr RSstr_createSize(ssize_t size);
-*/
+
 
 
 RSAPI RSStr RSstr_createSizeSet(ssize_t size, char value){
@@ -185,10 +179,7 @@ RSAPI void RSstr_appendLength(RSStr *string, const char *text, ssize_t length){
     string->text[string->size] = '\0';
     return;
 }
-/*
-//get the last element of a RSStr and return it in the "ret" variable. Removes the last element
-RSAPI void RSstr_pop(RSStr *string, char *ret);
-*/
+
 
 RSAPI void RSstr_insert(RSStr *string, const ssize_t index, const char *text){
     if(!string || index < 0) return;
@@ -297,9 +288,7 @@ RSAPI RSStr RSstr_copyReturn(RSStr *src){
 
 RSAPI void RSstr_copy(RSStr *dest, RSStr *src){
     if(!dest || !src) return;
-    // if(dest->text){
-    //     free(dest->text);
-    // }
+
     dest->size = src->size;
     dest->capacity = src->capacity;
     dest->text = malloc(src->capacity * sizeof(char));
@@ -424,7 +413,7 @@ void RSstr_stripWhiteSpaces(RSStr *string){
 
     if(!found_char){
         string->size = 0;
-        string->text = '\0';
+        string->text[0] = '\0';
         return;
     }
 
@@ -454,13 +443,6 @@ void RSstr_removeCharacter(RSStr *string, char character){
 
     size_t write_index = 0;
     size_t read_index = 0;
-    // for(size_t i = 0; i < string->size; i++){
-    //     if(string->text[i] == character){
-    //         write_index = i;
-    //         read_index = i + 1;
-    //         break;
-    //     }
-    // }
 
 
     for(size_t i = write_index; i < string->size; i++){
@@ -557,5 +539,3 @@ RSAPI void RSstr_println(const RSStr *string){
     putchar('\n');
     return;
 }
-
-// #endif

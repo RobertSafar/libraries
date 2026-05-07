@@ -1,12 +1,3 @@
-//maybe change the shift left functions so that they work even if the user
-//tells them to shift the vector from an index greater or equal to the size
-//of the vector. So that for example if we tell a vector with vector.size = 10
-//to shift left from index 10 (or more), it will ignore the fact that there
-//is no element at the given index, and will shift all of the existing elements
-//to the left
-
-// #ifndef VECTOR_C
-// #define VECTOR_C
 #include "rsVector.h"
 
 #ifdef _WIN32
@@ -134,7 +125,7 @@ RSAPI void RSvec_pushArray(RSVec *vector, const void *value, ssize_t amount){
         vector->data = realloc(vector->data, (vector->capacity * vector->element_size));
     }
     memcpy((char*)vector->data + (vector->size * vector->element_size), value, vector->element_size * amount);
-    vector->size++;
+    vector->size += amount;
     return;
 }
 
@@ -279,7 +270,7 @@ RSAPI void RSvec_shiftRightFrom(RSVec *vector, const ssize_t index){
     }
     else if((vector->size + 1) >= vector->capacity){
         vector->capacity *= 2;
-        vector->data = realloc(vector->data, vector->capacity);
+        vector->data = realloc(vector->data, vector->capacity * vector->element_size);
     }
 
     void *src = (char*)vector->data + (idx) * vector->element_size;
@@ -314,7 +305,7 @@ RSAPI void RSvec_shiftRightFromBy(RSVec *vector, const ssize_t index, ssize_t am
     }
     else if((vector->size + amt) >= vector->capacity){
         vector->capacity = (vector->size + amt) * 1.5;
-        vector->data = realloc(vector->data, vector->capacity);
+        vector->data = realloc(vector->data, vector->capacity * vector->element_size);
     }
 
     void *src = (char*)vector->data + (idx) * vector->element_size;
@@ -405,8 +396,8 @@ RSAPI RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, CVd
     vector.element_size = element_size;
     vector.data = malloc(vector.element_size * vector.capacity);
 
-    vector.destroy = RSvec_destroy_wrapper;
-    vector.copy = RSvec_copy_wrapper;
+    vector.destroy = destroy;
+    vector.copy = copy;
     memset(vector.data, 0, (vector.capacity * vector.element_size));
     return vector;
 }
@@ -421,8 +412,8 @@ RSAPI RSManagedVec RSmvec_createSize(ssize_t size, int element_size, CVdestroy_f
     vector.element_size = element_size;
     vector.data = malloc(vector.element_size * vector.capacity);
 
-    vector.destroy = RSvec_destroy_wrapper;
-    vector.copy = RSvec_copy_wrapper;
+    vector.destroy = destroy;
+    vector.copy = copy;
     memset(vector.data, 0, (vector.capacity * vector.element_size));
     return vector;
 }
@@ -437,8 +428,8 @@ RSAPI RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_s
     vector.element_size = element_size;
     vector.data = malloc(element_size * vector.capacity);
 
-    vector.destroy = RSvec_destroy_wrapper;
-    vector.copy = RSvec_copy_wrapper;
+    vector.destroy = destroy;
+    vector.copy = copy;
     for(size_t i=0; i<sz; i++){
         memcpy((char*)vector.data + (i * vector.element_size), value, vector.element_size);
     }
@@ -459,8 +450,8 @@ RSAPI RSManagedVec RSmvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, 
     vector.element_size = element_size;
     vector.data = malloc(element_size * vector.capacity);
 
-    vector.destroy = RSvec_destroy_wrapper;
-    vector.copy = RSvec_copy_wrapper;
+    vector.destroy = destroy;
+    vector.copy = copy;
     for(size_t i=0; i<sz; i++){
         memcpy((char*)vector.data + (i * vector.element_size), value, vector.element_size);
     }
@@ -663,9 +654,7 @@ RSAPI RSManagedVec RSmvec_copyReturn(RSManagedVec *src){
 RSAPI void RSmvec_copy(RSManagedVec *dest, RSManagedVec *src){
     if(!dest || !src) return;
 
-    // if(dest->data != NULL){
-    //     RSmvec_destroy(dest);
-    // }
+    
     dest->size = src->size;
     dest->capacity = src->capacity;
     dest->element_size = src->element_size;
@@ -716,7 +705,7 @@ RSAPI void RSmvec_shiftRightFrom(RSManagedVec *vector, const ssize_t index){
     }
     else if((vector->size + 1) >= vector->capacity){
         vector->capacity *= 2;
-        vector->data = realloc(vector->data, vector->capacity);
+        vector->data = realloc(vector->data, vector->capacity * vector->element_size);
     }
 
     void *src = (char*)vector->data + (idx) * vector->element_size;
@@ -736,7 +725,7 @@ RSAPI void RSmvec_shiftLeftFrom(RSManagedVec *vector, const ssize_t index){
     }
 
     if(vector->destroy) vector->destroy(vector->data);
-    void *src = (char*)vector->data;// + (index) * vector->element_size;
+    void *src = (char*)vector->data;
     memmove(src, (char*)src + vector->element_size, idx * vector->element_size);
     memset((char*)src + idx * vector->element_size, 0, vector->element_size);
 
@@ -755,7 +744,7 @@ RSAPI void RSmvec_shiftRightFromBy(RSManagedVec *vector, const ssize_t index, ss
     }
     else if((vector->size + amt) >= vector->capacity){
         vector->capacity = (vector->size + amt) * 1.5;
-        vector->data = realloc(vector->data, vector->capacity);
+        vector->data = realloc(vector->data, vector->capacity * vector->element_size);
     }
 
     void *src = (char*)vector->data + (idx) * vector->element_size;
@@ -784,7 +773,7 @@ RSAPI void RSmvec_shiftLeftFromBy(RSManagedVec *vector, const ssize_t index, ssi
             destroy_add += vector->element_size;
         }
     }
-    void *src = (char*)vector->data;// + (index) * vector->element_size;
+    void *src = (char*)vector->data;
     memmove(src, (char*)src + amt * vector->element_size, copy_amount * vector->element_size);
     memset((char*)src + copy_amount * vector->element_size, 0, destroy_amount * vector->element_size);
 
@@ -800,6 +789,3 @@ RSAPI void RSmvec_sort(const RSManagedVec *vector, const int (*RSmvec_compare)(c
     qsort(vector->data, vector->size, vector->element_size, RSmvec_compare);
     return;
 }
-
-
-// #endif

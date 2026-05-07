@@ -400,7 +400,6 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 
         default:
             if(expecting_node == true || last_parent.type == JSON_ERROR){
-                // RSon_freeAST(&root);
                 goto free_ast;
             }
             else if(c == ',' && (is_key || last_parent.type != JSON_OBJECT)){
@@ -412,7 +411,6 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
                 expecting_node = true;
             }
             else{
-                // RSon_freeAST(&root);
                 goto free_ast;
             }
             break;
@@ -447,8 +445,6 @@ RSAPI RSJsonValue RSon_loadDataFromString(char input[]){
 
     free(stack.values);
 
-    // if(last_parent.type != JSON_ERROR) root = last_parent;
-    // else root = current;
     root = current;
 
     return root;
@@ -533,13 +529,7 @@ RSAPI RSJsonValue *RSon_getPath(RSJsonValue *root, char *path){
                 }
                 index++;
             }
-            // if(character == '['){
-            //     break;
-            // }
-
-
-            // char temp = path[index];
-            // path[index] = '\0';
+            
             for(size_t i = 0; i < node->data.object.size; i++){
                 RSJsonValue *kp;
                 kp = node->data.object.values + i;
@@ -551,15 +541,12 @@ RSAPI RSJsonValue *RSon_getPath(RSJsonValue *root, char *path){
                     }
                     t++;
                 }
-                // if(*t == '\0'){
+                
                 if(*t == '\0' || *t == '\"'){
                     node = kp;
                     goto key_found;
                 }
-                // if (strcmp((path + start), kp->key.text) == 0){
-                //     node = &kp->value;
-                //     goto key_found;
-                // }
+                
                 get_next_key:
             }
 

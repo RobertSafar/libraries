@@ -1,5 +1,5 @@
-#ifndef RS_JSON
-#define RS_JSON
+#ifndef RS_JSON_H
+#define RS_JSON_H
 
 #include <stdbool.h>
 

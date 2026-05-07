@@ -53,7 +53,6 @@ RSAPI void Cson_printNode(JsonParserValue *node){
 
 RSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
     for(int i = 0; i < level; i++){
-        //putchar('\t');
         printf("    ");
     }
     printf("type = JSON_STRING : ");
@@ -85,7 +84,6 @@ RSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
         Cson_printKeyValtype(RSmvec_getPointer(&node->value.val.object, node->value.val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("}");
@@ -99,7 +97,6 @@ RSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
         Cson_printASTtype(RSmvec_getPointer(&node->value.val.array, node->value.val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("]");
@@ -112,7 +109,6 @@ RSAPI void Cson_printKeyValtype(JsonKeyValuePair *node, int level){
 
 RSAPI void Cson_printASTtype(JsonParserValue *node, int level){
     for(int i = 0; i < level; i++){
-        //putchar('\t');
         printf("    ");
     }
     switch (node->type){
@@ -143,7 +139,6 @@ RSAPI void Cson_printASTtype(JsonParserValue *node, int level){
         Cson_printKeyValtype(RSmvec_getPointer(&node->val.object, node->val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("}\n");
@@ -157,7 +152,6 @@ RSAPI void Cson_printASTtype(JsonParserValue *node, int level){
         Cson_printASTtype(RSmvec_getPointer(&node->val.array, node->val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("]\n");
@@ -170,7 +164,6 @@ RSAPI void Cson_printASTtype(JsonParserValue *node, int level){
 
 RSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
     for(int i = 0; i < level; i++){
-        //putchar('\t');
         printf("    ");
     }
     printf("\"%s\" : ", node->key.text);
@@ -207,7 +200,6 @@ RSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
         Cson_printKeyVal(RSmvec_getPointer(&node->value.val.object, node->value.val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("}");
@@ -221,7 +213,6 @@ RSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
         Cson_printAST(RSmvec_getPointer(&node->value.val.array, node->value.val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("]");
@@ -234,7 +225,6 @@ RSAPI void Cson_printKeyVal(JsonKeyValuePair *node, int level){
 
 RSAPI void Cson_printAST(JsonParserValue *node, int level){
     for(int i = 0; i < level; i++){
-        //putchar('\t');
         printf("    ");
     }
     switch (node->type){
@@ -270,7 +260,6 @@ RSAPI void Cson_printAST(JsonParserValue *node, int level){
         Cson_printKeyVal(RSmvec_getPointer(&node->val.object, node->val.object.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("}\n");
@@ -284,7 +273,6 @@ RSAPI void Cson_printAST(JsonParserValue *node, int level){
         Cson_printAST(RSmvec_getPointer(&node->val.array, node->val.array.size - 1), level + 1);
         printf("\n");
         for(int i = 0; i < level; i++){
-            //putchar('\t');
             printf("    ");
         }
         printf("]\n");
@@ -369,7 +357,6 @@ RSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
             }
             node = RSmvec_getPointer(&node->val.array, json_arr_index);
             index++;
-            // if(path[index] != '.' && path[index] != '[' && path[index] != '\0'){
             if(path[index] != '.' && path[index] != '\0'){
                 printf("incorrect path\n");
                 return NULL;
@@ -391,18 +378,11 @@ RSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
             while(index < length){
                 character = path[index];
                 if(character == '.'){
-                    // index--;
                     break;
                 }
                 index++;
             }
-            // if(character == '['){
-            //     break;
-            // }
 
-
-            // char temp = path[index];
-            // path[index] = '\0';
             for(size_t i = 0; i < node->val.object.size; i++){
                 JsonKeyValuePair *kp;
                 kp = RSmvec_getPointer(&node->val.object, i);
@@ -417,17 +397,13 @@ RSAPI JsonParserValue *Cson_get(JsonParserValue *root, char *path){
                     node = &kp->value;
                     goto key_found;
                 }
-                // if (strcmp((path + start), kp->key.text) == 0){
-                //     node = &kp->value;
-                //     goto key_found;
-                // }
+
                 get_next_key:
             }
 
             printf("incorrect path : \"%s\" key not found\n", path + start);
             return NULL;
             key_found:
-            // path[index] = temp;
             break;
         }
     }
@@ -514,7 +490,6 @@ RSAPI JsonParserValue Cson_parseObject(RSStr *data, size_t *start){
         RSstr_get(data, index, &character);
         if(character == '}' ){
             goto return_object;
-            // return ret_val;
         }
         else if(character != ','){
             Cson_free(&ret_val);
@@ -537,10 +512,7 @@ RSAPI JsonParserValue Cson_parseArray(RSStr *data, size_t *start){
     ret_val.val.object = CVECTOR_EMPTY(JsonParserValue, NULL, NULL);
     char character;
     RSstr_get(data, index, &character);
-    // if(character == ']'){
-    //     *start = ++index;
-    //     return ret_val;
-    // }
+    
     if(character == ','){
         ret_val.type = JSON_ERROR;
         return ret_val;
@@ -590,7 +562,6 @@ RSAPI JsonParserValue Cson_parseArray(RSStr *data, size_t *start){
             return ret_val;
         }
         RSmvec_push(&ret_val.val.array, &temp);
-        // index++;
     }
     return ret_val;
 }
@@ -756,10 +727,9 @@ RSAPI JsonParserValue Cson_loadData(RSStr *data){
     size_t input_size = data->size;
     size_t index = 0;
     JsonParserValue ret_val;
-    // while(index < input_size){
-        char character;
-        RSstr_get(data, index, &character);
-        switch (character) {
+    char character;
+    RSstr_get(data, index, &character);
+    switch (character) {
         case '\"':
             index++;
             ret_val = Cson_parseString(data, &index);
@@ -783,9 +753,6 @@ RSAPI JsonParserValue Cson_loadData(RSStr *data){
             break;
         default:
             break;
-        // }
-
-        // index++;
     }
 
     return ret_val;
