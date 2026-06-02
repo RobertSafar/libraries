@@ -242,7 +242,7 @@ RSAPI int RSstr_get(RSStr *string, const ssize_t index, char *ret){
     return 0;
 }
 
-RSAPI inline char RSstr_getUnsafe(RSStr *string, const ssize_t index){
+RSAPI char RSstr_getUnsafe(RSStr *string, const ssize_t index){
     return string->text[index];
 }
 
@@ -280,24 +280,34 @@ RSAPI RSStr RSstr_copyReturn(RSStr *src){
     RSStr string;
     string.size = src->size;
     string.capacity = src->capacity;
-    string.text = malloc(src->capacity * sizeof(char));
+    if(src->capacity){
+        string.text = malloc(src->capacity * sizeof(char));
+    }
+    else{
+        string.text = NULL;
+    }
     memcpy(string.text, src->text, sizeof(char) * string.size);
     string.text[string.size] = '\0';
     return string;
 }
 
-RSAPI void RSstr_copy(RSStr *dest, RSStr *src){
+RSAPI void RSstr_copy(RSStr *dest, const RSStr *src){
     if(!dest || !src) return;
 
     dest->size = src->size;
     dest->capacity = src->capacity;
-    dest->text = malloc(src->capacity * sizeof(char));
+    if(src->capacity){
+        dest->text = malloc(src->capacity * sizeof(char));
+    }
+    else{
+        dest->text = NULL;
+    }
     memcpy(dest->text, src->text, sizeof(char) * dest->size);
     dest->text[dest->size] = '\0';
     return;
 }
 
-RSAPI void RSstr_copyShallow(RSStr *dest, RSStr *src){
+RSAPI void RSstr_copyShallow(RSStr *dest, const RSStr *src){
     if(!dest || !src) return;
     memcpy(dest, src, sizeof(RSStr));
     return;

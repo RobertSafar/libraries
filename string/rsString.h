@@ -70,7 +70,7 @@ void RSstr_set(RSStr *string, const ssize_t index, const char *text);
 int RSstr_get(RSStr *string, const ssize_t index, char *ret);
 //return the character at the index "index" without checking if "string" exists or is NULL,
 //and without checking if the index is valid
-inline char RSstr_getUnsafe(RSStr *string, const ssize_t index);
+char RSstr_getUnsafe(RSStr *string, const ssize_t index);
 //set size of the RSStr to 0
 void RSstr_clear(RSStr *string);
 //change the capacity of a string, if current size is greater than te new capacity
@@ -82,9 +82,9 @@ void RSstr_resize(RSStr *string, ssize_t capacity);
 RSStr RSstr_copyReturn(RSStr *src);
 //copies the RSStr "src" into the RSStr "dest". If RSStr dest is not empty, the pointer to this memory is lost.
 //dest MUST be freed before calling to copy function
-void RSstr_copy(RSStr *dest, RSStr *src);
+void RSstr_copy(RSStr *dest, const RSStr *src);
 //copy the "src" RSStr into "dest" RSStr verbatim. The pointer to the text is also copied which means that both Strings point to the same piece of memory. BE CAREFUL! 
-void RSstr_copyShallow(RSStr *dest, RSStr *src);
+void RSstr_copyShallow(RSStr *dest, const RSStr *src);
 
 
 //get the capacity of a RSStr
