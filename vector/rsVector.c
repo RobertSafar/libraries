@@ -25,39 +25,54 @@ RSAPI RSVec RSvec_create(int element_size){
 }
 
 RSAPI RSVec RSvec_createCapacity(ssize_t capacity, int element_size){
-    if (capacity < 0) return _VECTOR_EMPTY(element_size);
+    if (capacity < 0) return _RSVECTOR_EMPTY(element_size);
 
     size_t cap = (size_t) capacity;
     RSVec vector;
     vector.size = 0;
     vector.capacity = cap;
     vector.element_size = element_size;
-    vector.data = malloc(vector.element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(vector.element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
     return vector;
 }
 
 RSAPI RSVec RSvec_createSize(ssize_t size, int element_size){
-    if (size < 0) return _VECTOR_EMPTY(element_size);
+    if (size < 0) return _RSVECTOR_EMPTY(element_size);
 
     size_t sz = (size_t) size;
     RSVec vector;
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
-    vector.data = malloc(vector.element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(vector.element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
     memset(vector.data, 0, (vector.size * vector.element_size));
     return vector;
 }
 
 RSAPI RSVec RSvec_createSizeSet(ssize_t size, void *value, int element_size){
-    if (size < 0) return _VECTOR_EMPTY(element_size);
+    if (size < 0) return _RSVECTOR_EMPTY(element_size);
 
     size_t sz = (size_t) size;
     RSVec vector;
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
-    vector.data = malloc(element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
     for(size_t i=0; i<sz; i++){
         memcpy((char*)vector.data + (i * element_size), value, element_size);
     }
@@ -65,7 +80,7 @@ RSAPI RSVec RSvec_createSizeSet(ssize_t size, void *value, int element_size){
 }
 
 RSAPI RSVec RSvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size){    
-    if (capacity < 0) return _VECTOR_EMPTY(element_size);
+    if (capacity < 0) return _RSVECTOR_EMPTY(element_size);
     else if (capacity < size) size = capacity;
     else if (size < 0) size = 0;
     
@@ -76,7 +91,12 @@ RSAPI RSVec RSvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *va
     vector.size = sz;
     vector.capacity = cap >= sz ? cap : sz;
     vector.element_size = element_size;
-    vector.data = malloc(vector.element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(vector.element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
     for(size_t i=0; i<sz; i++){
         memcpy((char*)vector.data + (i * vector.element_size), value, vector.element_size);
     }
@@ -217,7 +237,7 @@ RSAPI void RSvec_resize(RSVec *vector, ssize_t capacity){
 
 
 RSAPI RSVec RSvec_copyReturn(RSVec *src){
-    if(!src) return VECTOR_NULL();
+    if(!src) return RSVECTOR_NULL();
 
     RSVec vector;
     vector.size = src->size;
@@ -357,7 +377,7 @@ RSAPI void RSvec_sort(const RSVec *vector, const int (*RSvec_compare)(const void
 
 
 
-RSAPI RSManagedVec RSmvec_create(int element_size, CVdestroy_func destroy, CVcopy_func copy){
+RSAPI RSManagedVec RSmvec_create(int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy){
     RSManagedVec vector;
     vector.size = 0;
     vector.capacity = 10;
@@ -396,7 +416,7 @@ RSAPI RSManagedVec RSmvec_createDefault2D(int element_size){
     return vector;
 }
 
-RSAPI RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+RSAPI RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy){
     if(capacity <= 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
 
     size_t cap = (size_t) capacity;
@@ -404,7 +424,12 @@ RSAPI RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, CVd
     vector.size = 0;
     vector.capacity = cap;
     vector.element_size = element_size;
-    vector.data = malloc(vector.element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(vector.element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
 
     vector.destroy = destroy;
     vector.copy = copy;
@@ -412,7 +437,7 @@ RSAPI RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, CVd
     return vector;
 }
 
-RSAPI RSManagedVec RSmvec_createSize(ssize_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+RSAPI RSManagedVec RSmvec_createSize(ssize_t size, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy){
     if (size < 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
     
     size_t sz = (size_t) size;
@@ -420,7 +445,12 @@ RSAPI RSManagedVec RSmvec_createSize(ssize_t size, int element_size, CVdestroy_f
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
-    vector.data = malloc(vector.element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(vector.element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
 
     vector.destroy = destroy;
     vector.copy = copy;
@@ -428,7 +458,7 @@ RSAPI RSManagedVec RSmvec_createSize(ssize_t size, int element_size, CVdestroy_f
     return vector;
 }
 
-RSAPI RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+RSAPI RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy){
     if (size < 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
 
     size_t sz = (size_t) size;
@@ -436,7 +466,12 @@ RSAPI RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_s
     vector.size = sz;
     vector.capacity = sz;
     vector.element_size = element_size;
-    vector.data = malloc(element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(vector.element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
 
     vector.destroy = destroy;
     vector.copy = copy;
@@ -446,7 +481,7 @@ RSAPI RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_s
     return vector;
 }
 
-RSAPI RSManagedVec RSmvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy){
+RSAPI RSManagedVec RSmvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy){
     if (capacity < 0) return _CVECTOR_EMPTY(element_size, destroy, copy);
     else if (capacity < size) size = capacity;
     else if(size < 0) size = 0;
@@ -458,7 +493,12 @@ RSAPI RSManagedVec RSmvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, 
     vector.size = sz;
     vector.capacity = cap >= sz ? cap : sz;
     vector.element_size = element_size;
-    vector.data = malloc(element_size * vector.capacity);
+    if(vector.element_size * vector.capacity){
+        vector.data = malloc(vector.element_size * vector.capacity);
+    }
+    else{
+        vector.data = NULL;
+    }
 
     vector.destroy = destroy;
     vector.copy = copy;

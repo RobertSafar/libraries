@@ -25,12 +25,17 @@ RSAPI RSStr RSstr_create(){
 }
 
 RSAPI RSStr RSstr_createCapacity(ssize_t capacity){
-    if(capacity < 0) return STRING_EMPTY();
+    if(capacity < 0) return RSSTRING_EMPTY();
 
     RSStr string;
     string.size = 0;
     string.capacity = (size_t) capacity + 1;
-    string.text = malloc(sizeof(char) * string.capacity);
+    if(capacity){
+        string.text = malloc(sizeof(char) * string.capacity);
+    }
+    else{
+        string.text = NULL;
+    }
     string.text[string.size] = '\0'; 
     return string;
 }
@@ -39,14 +44,19 @@ RSAPI RSStr RSstr_createCapacity(ssize_t capacity){
 
 
 RSAPI RSStr RSstr_createSizeSet(ssize_t size, char value){
-    if(size < 0) return STRING_EMPTY();
+    if(size < 0) return RSSTRING_EMPTY();
 
     size_t sz = (size_t) size;
     RSStr string;
     string.size = sz;
     string.capacity = sz + 1 + SIZE_RESERVE;
-    string.text = malloc(sizeof(char) * string.capacity);
-    memset(string.text, value, (sz * sizeof(char)));
+    if(size){
+        string.text = malloc(string.capacity * sizeof(char));
+        memset(string.text, value, (sz * sizeof(char)));
+    }
+    else{
+        string.text = NULL;
+    }
     string.text[string.size] = '\0'; 
     return string;
 }
@@ -275,7 +285,7 @@ RSAPI void RSstr_resize(RSStr *string, ssize_t capacity){
 
 
 RSAPI RSStr RSstr_copyReturn(RSStr *src){
-    if(!src) return STRING_NULL();
+    if(!src) return RSSTRING_NULL();
 
     RSStr string;
     string.size = src->size;

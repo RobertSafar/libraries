@@ -26,9 +26,9 @@ typedef struct RSStr{
 }RSStr;
 
 //string where all elements are set to 0
-#define STRING_NULL() (RSStr){0, 0, NULL}
+#define RSSTRING_NULL() (RSStr){0, 0, NULL}
 //string where all elements are set to 0
-#define STRING_EMPTY() (RSStr){0, 0, NULL}
+#define RSSTRING_EMPTY() (RSStr){0, 0, NULL}
 
 //create a RSStr with enough space for 10 elements
 RSStr RSstr_create();

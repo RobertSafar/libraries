@@ -21,11 +21,11 @@ typedef struct RSVec{
 }RSVec;
 
 //empty vector with everything set to 0
-#define VECTOR_NULL() (RSVec){0, 0, 0, NULL}
+#define RSVECTOR_NULL() (RSVec){0, 0, 0, NULL}
 //empty vector using data type
-#define VECTOR_EMPTY(type) (RSVec){0, 0, sizeof(type), NULL}
+#define RSVECTOR_EMPTY(type) (RSVec){0, 0, sizeof(type), NULL}
 //empty vector using data type size
-#define _VECTOR_EMPTY(element_size) (RSVec){0, 0, element_size, NULL}
+#define _RSVECTOR_EMPTY(element_size) (RSVec){0, 0, element_size, NULL}
 
 //------------------------------------------------------------------------------------------------------------------------------------\\
 //here are some vector functions for working with simple data that doesn't point to any allocated memory.
@@ -107,8 +107,8 @@ void RSvec_sort(const RSVec *vector, const int (*RSvec_compare)(const void *a, c
 //by default, RSManagedVec behaves as a vector of simple data types (int, char, ...)
 
 
-typedef void (*CVdestroy_func)(void *element);
-typedef void (*CVcopy_func)(void *dst, const void *src);
+typedef void (*rsMVecDestroyFunc)(void *element);
+typedef void (*rsMVecCopyFunc)(void *dst, const void *src);
 
 typedef struct RSManagedVec{
     size_t size;
@@ -116,8 +116,8 @@ typedef struct RSManagedVec{
     int element_size;
     void *data;
 
-    CVdestroy_func destroy;
-    CVcopy_func copy;
+    rsMVecDestroyFunc destroy;
+    rsMVecCopyFunc copy;
 }RSManagedVec;
 
 //empty RSManagedVec with everything set to 0
@@ -128,19 +128,19 @@ typedef struct RSManagedVec{
 #define _CVECTOR_EMPTY(element_size, destroy, copy) (RSManagedVec){0, 0, element_size, NULL, destroy, copy}
 
 //create a vector with enough space for 10 elements
-RSManagedVec RSmvec_create(int element_size, CVdestroy_func destroy, CVcopy_func copy);
+RSManagedVec RSmvec_create(int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy);
 //create a default 1D vector (Same as the simple RSVec) with enough space for 10 elements
 RSManagedVec RSmvec_createDefault1D(int element_size);
 //create a default 2D vector (RSVec of vectors) with enough space for 10 elements
 RSManagedVec RSmvec_createDefault2D(int element_size);
 //create a vector with a desired amount of elements
-RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+RSManagedVec RSmvec_createCapacity(ssize_t capacity, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy);
 //create a vector with a desired amount of elements and set it to be full
-RSManagedVec RSmvec_createSize(ssize_t size, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+RSManagedVec RSmvec_createSize(ssize_t size, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy);
 //create a vector with a desired amount of elements and fill it up with a value
-RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+RSManagedVec RSmvec_createSizeSet(ssize_t size, void *value, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy);
 //create a vector with a desired amount of elements and fill it up with a value
-RSManagedVec RSmvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size, CVdestroy_func destroy, CVcopy_func copy);
+RSManagedVec RSmvec_createCapacitySizeSet(ssize_t capacity, ssize_t size, void *value, int element_size, rsMVecDestroyFunc destroy, rsMVecCopyFunc copy);
 //free the vector. If the elements also use dynamic memory, they don't get freed -> memory leaks
 void RSmvec_destroy(RSManagedVec *vector);
 //wrapper that calls RSvec_destroy under the hood
