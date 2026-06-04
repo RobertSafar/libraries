@@ -1,7 +1,6 @@
 
 #include "rsHashTable.h"
-#include <string.h>
-#include <stdlib.h>
+
 
 #ifdef _WIN32
     #ifdef BUILDING_DLL
@@ -273,7 +272,7 @@ RSAPI void RShash_delete(RSHash *table, void *key){
     RSSlotState state;
     size_t index = probe(table, key, &state);
     
-    if(state != RSHASH_TAKEN) return NULL;
+    if(state != RSHASH_TAKEN) return;
     
     void *slot = (char*)table->entries + index * (table->key_size + table->value_size);
     table->delete(slot, (char*)slot + table->key_size);
@@ -281,7 +280,7 @@ RSAPI void RShash_delete(RSHash *table, void *key){
     table->size--;
     table->meta[index] = (table->meta[index] & ~RSHASH_STATE_MASK) | (RSHASH_DELETED << 6);
 
-    return (char*)slot + table->key_size;
+    return;
 }
 
 RSAPI void *RShash_getKey(RSHash *table, size_t index){

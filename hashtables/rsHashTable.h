@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define RSHASH_STATE_MASK ((uint8_t)(0b11 << 6))
 
